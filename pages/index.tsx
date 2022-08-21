@@ -8,9 +8,14 @@ const Home: NextPage = () => {
   const [currFile, setCurrFile] = useState<File>();
   const [player, setPlayer] = useState<HTMLAudioElement>();
   const [volume, setVolume] = useState(50);
+  const [init, setInit] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (!init) {
+      return;
+    }
+
     const player = new Audio();
     player.onended = () => console.log("Song ended");
     setPlayer(player);
@@ -21,7 +26,6 @@ const Home: NextPage = () => {
     if (!ctx || !player || !canvas) {
       return;
     }
-
     const audioSource = audioCtx.createMediaElementSource(player);
     const analyser = audioCtx.createAnalyser();
     audioSource.connect(analyser);
@@ -47,7 +51,7 @@ const Home: NextPage = () => {
       requestAnimationFrame(animate);
     };
     animate();
-  }, []);
+  }, [init]);
 
   useEffect(() => {
     if (!player) {
@@ -184,6 +188,7 @@ const Home: NextPage = () => {
       >
         Pause..
       </button>
+      <button onClick={() => setInit(true)}>Innit</button>
       <p>Volume - {volume}%</p>
       <input
         type="range"
