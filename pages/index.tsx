@@ -1,57 +1,19 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import styles from "../styles/Home.module.css";
+import Controls from "../components/Controls";
+import utils from "../utils/HomeUtils";
+
+const { setNewSong, pause, play } = utils;
 
 const Home: NextPage = () => {
   const [audioFiles, setAudioFiles] = useState<File[]>();
   const [currFile, setCurrFile] = useState<File>();
   const [player, setPlayer] = useState<HTMLAudioElement>();
   const [volume, setVolume] = useState(50);
-  const [init, setInit] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    if (!init) {
-      return;
-    }
-
-    const player = new Audio();
-    player.onended = () => console.log("Song ended");
-    setPlayer(player);
-
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    const audioCtx = new AudioContext();
-    if (!ctx || !player || !canvas) {
-      return;
-    }
-    const audioSource = audioCtx.createMediaElementSource(player);
-    const analyser = audioCtx.createAnalyser();
-    audioSource.connect(analyser);
-    analyser.connect(audioCtx.destination);
-    analyser.fftSize = 64;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArr = new Uint8Array(bufferLength);
-
-    const barWidth = canvas.width / bufferLength;
-    let barHeight;
-    let x = 0;
-
-    const animate = () => {
-      x = 0;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      analyser.getByteFrequencyData(dataArr);
-      for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArr[i];
-        ctx.fillStyle = "cyan";
-        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-        x += barWidth;
-      }
-      requestAnimationFrame(animate);
-    };
-    animate();
-  }, [init]);
+  canvasRef.current;
 
   useEffect(() => {
     if (!player) {
@@ -59,41 +21,6 @@ const Home: NextPage = () => {
     }
     player.volume = volume / 100;
   }, [volume, player]);
-
-  const setNewSong = async (file: File) => {
-    if (!player) {
-      return;
-    }
-    setCurrFile(file);
-    const url = URL.createObjectURL(file);
-    player.src = url;
-  };
-
-  const play = async () => {
-    if (!audioFiles || !player) {
-      return;
-    }
-    if (!currFile) {
-      setNewSong(audioFiles[Math.floor(Math.random() * audioFiles.length)]);
-    }
-    player.play();
-  };
-
-  const randomize = () => {
-    if (!audioFiles || !player) {
-      return;
-    }
-    setNewSong(audioFiles[Math.floor(Math.random() * audioFiles.length)]);
-
-    player.play();
-  };
-
-  const pause = () => {
-    if (!player) {
-      return;
-    }
-    player.pause();
-  };
 
   const onFiles = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -105,8 +32,10 @@ const Home: NextPage = () => {
     }
   };
 
+  const clearFiles = () => setAudioFiles(undefined);
+
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
         <title>Well of Sound</title>
         <meta name="description" content="Music visualizer." />
@@ -128,7 +57,19 @@ const Home: NextPage = () => {
             return (
               <div
                 key={name}
-                onDoubleClick={() => setNewSong(file).then(() => play())}
+                onDoubleClick={() =>
+                  setNewSong({ file, player, setCurrFile }).then(() =>
+                    play({
+                      player,
+                      setCurrFile,
+                      audioFiles,
+                      currFile,
+                      setIsPlaying,
+                      setPlayer,
+                      canvas: canvasRef.current,
+                    })
+                  )
+                }
                 style={{
                   backgroundColor:
                     file.name === currFile?.name ? "cyan" : undefined,
@@ -146,76 +87,26 @@ const Home: NextPage = () => {
           ></canvas>
         </div>
       </div>
-      <input
-        type="file"
-        name="myImage"
-        accept="*"
-        multiple
-        onChange={onFiles}
-        onClick={(event) => {
-          if (event.target instanceof HTMLInputElement) {
-            event.target.value = "";
-          }
-        }}
-      />
-      <button
-        style={{
-          margin: "30px",
-          fontSize: "20px",
-          padding: "5px 60px",
-        }}
-        onClick={() => setAudioFiles(undefined)}
-      >
-        Clear files
-      </button>
-      <button
-        style={{
-          margin: "30px",
-          fontSize: "20px",
-          padding: "5px 60px",
-        }}
-        onClick={play}
-      >
-        Play!
-      </button>
-      <button
-        style={{
-          margin: "30px",
-          fontSize: "20px",
-          padding: "5px 60px",
-        }}
-        onClick={pause}
-      >
-        Pause..
-      </button>
-      <button onClick={() => setInit(true)}>Innit</button>
-      <p>Volume - {volume}%</p>
-      <input
-        type="range"
-        min="0"
-        max="100"
-        value={volume}
-        onChange={(e) => setVolume(Number(e.target.value))}
+      <Controls
+        clearFiles={clearFiles}
+        onFiles={onFiles}
+        play={() =>
+          play({
+            player,
+            setCurrFile,
+            audioFiles,
+            currFile,
+            setIsPlaying,
+            setPlayer,
+            canvas: canvasRef.current,
+          })
+        }
+        pause={() => pause({ player, setIsPlaying })}
+        volume={{ val: volume, set: setVolume }}
+        isPlaying={isPlaying}
       />
     </div>
   );
 };
 
 export default Home;
-
-const getRandomClr = () => {
-  const o = Math.round,
-    r = Math.random,
-    s = 255;
-  return (
-    "rgba(" +
-    o(r() * s) +
-    "," +
-    o(r() * s) +
-    "," +
-    o(r() * s) +
-    "," +
-    r().toFixed(1) +
-    ")"
-  );
-};
