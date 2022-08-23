@@ -13,7 +13,6 @@ const Home: NextPage = () => {
   const [volume, setVolume] = useState(50);
   const [isPlaying, setIsPlaying] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  canvasRef.current;
 
   useEffect(() => {
     if (!player) {
@@ -21,6 +20,22 @@ const Home: NextPage = () => {
     }
     player.volume = volume / 100;
   }, [volume, player]);
+
+  useEffect(() => {
+    if (!player) {
+      return;
+    }
+    player.onended = () =>
+      play({
+        player,
+        setCurrFile,
+        audioFiles,
+        currFile: undefined,
+        setIsPlaying,
+        setPlayer,
+        canvas: canvasRef.current,
+      });
+  }, [player, audioFiles]);
 
   const onFiles = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -35,76 +50,83 @@ const Home: NextPage = () => {
   const clearFiles = () => setAudioFiles(undefined);
 
   return (
-    <div>
+    <div style={{ margin: "10px" }}>
       <Head>
         <title>Well of Sound</title>
         <meta name="description" content="Music visualizer." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <h1 style={{ textAlign: "center", background: "#c8f1f1" }}>
+        Well of Sound
+      </h1>
       <div style={{ display: "flex", gap: "20px" }}>
-        <div
-          style={{
-            height: "400px",
-            width: "400px",
-            overflow: "auto",
-            border: "solid 3px black",
-            background: "##ccd7e8",
-            padding: "5px",
-          }}
-        >
-          {audioFiles?.map((file, i) => {
-            const { name } = file;
-            return (
-              <div
-                key={name}
-                onDoubleClick={() =>
-                  setNewSong({ file, player, setCurrFile }).then(() =>
-                    play({
-                      player,
-                      setCurrFile,
-                      audioFiles,
-                      currFile,
-                      setIsPlaying,
-                      setPlayer,
-                      canvas: canvasRef.current,
-                    })
-                  )
-                }
-                style={{
-                  backgroundColor:
-                    file.name === currFile?.name ? "cyan" : undefined,
-                }}
-              >
-                {i} - {name}
-              </div>
-            );
-          })}
+        <div>
+          <Controls
+            clearFiles={clearFiles}
+            onFiles={onFiles}
+            play={() =>
+              play({
+                player,
+                setCurrFile,
+                audioFiles,
+                currFile,
+                setIsPlaying,
+                setPlayer,
+                canvas: canvasRef.current,
+              })
+            }
+            pause={() => pause({ player, setIsPlaying })}
+            volume={{ val: volume, set: setVolume }}
+            isPlaying={isPlaying}
+            player={player}
+          />
+          <div
+            style={{
+              height: "400px",
+              width: "400px",
+              overflow: "auto",
+              border: "solid 3px black",
+              background: "##ccd7e8",
+              padding: "5px",
+            }}
+          >
+            {audioFiles?.map((file, i) => {
+              const { name } = file;
+              return (
+                <div
+                  key={name}
+                  onDoubleClick={() =>
+                    setNewSong({ file, player, setCurrFile }).then(() =>
+                      play({
+                        player,
+                        setCurrFile,
+                        audioFiles,
+                        currFile,
+                        setIsPlaying,
+                        setPlayer,
+                        canvas: canvasRef.current,
+                        songToPlay: file,
+                      })
+                    )
+                  }
+                  style={{
+                    backgroundColor:
+                      file.name === currFile?.name ? "cyan" : undefined,
+                  }}
+                >
+                  {i} - {name}
+                </div>
+              );
+            })}
+          </div>
         </div>
         <div style={{ border: "solid 3px black", width: "100%" }}>
           <canvas
             ref={canvasRef}
-            style={{ width: "100%", height: "100%", paddingTop: "20px" }}
+            style={{ width: "100%", height: "100%", background: "black" }}
           ></canvas>
         </div>
       </div>
-      <Controls
-        clearFiles={clearFiles}
-        onFiles={onFiles}
-        play={() =>
-          play({
-            player,
-            setCurrFile,
-            audioFiles,
-            currFile,
-            setIsPlaying,
-            setPlayer,
-            canvas: canvasRef.current,
-          })
-        }
-        pause={() => pause({ player, setIsPlaying })}
-        volume={{ val: volume, set: setVolume }}
-        isPlaying={isPlaying}
-      />
     </div>
   );
 };
