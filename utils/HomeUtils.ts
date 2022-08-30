@@ -141,7 +141,7 @@ const initialize = ({ setPlayer, canvas }: initializeProps) => {
   const analyser = audioCtx.createAnalyser();
   audioSource.connect(analyser);
   analyser.connect(audioCtx.destination);
-  analyser.fftSize = 64;
+  analyser.fftSize = 128;
   const bufferLength = analyser.frequencyBinCount;
   const dataArr = new Uint8Array(bufferLength);
 
@@ -164,7 +164,7 @@ const initialize = ({ setPlayer, canvas }: initializeProps) => {
       const barHeight = dataArr[i] / 255;
       ctx.fillRect(
         x,
-        canvas.height * (1 - barHeight) * 0.9,
+        canvas.height * (1 - barHeight),
         barWidth,
         canvas.height
       );
