@@ -6,6 +6,8 @@ import {
   useEffect,
   useState,
 } from "react";
+import { Clrs } from "../styles/consts";
+import FlexDiv from "../styles/FlexDiv";
 import { formatS } from "../utils/timeUtils";
 
 type Props = {
@@ -15,7 +17,7 @@ type Props = {
   pause(): void;
   volume: { val: number; set: Dispatch<SetStateAction<number>> };
   isPlaying: boolean;
-  player?: HTMLAudioElement | null;
+  player?: HTMLAudioElement;
 };
 
 const Controls: FC<Props> = ({
@@ -49,8 +51,8 @@ const Controls: FC<Props> = ({
         flexWrap: "wrap",
         alignItems: "start",
         gap: "10px",
-        border: "solid 3px black",
-        padding: "5px",
+        border: `solid 3px ${Clrs.primary}`,
+        padding: "10px",
         marginBottom: "10px",
       }}
     >
@@ -58,7 +60,7 @@ const Controls: FC<Props> = ({
         <input
           type="file"
           name="myImage"
-          accept="*"
+          accept=".mp3,audio/*"
           multiple
           onChange={onFiles}
           style={{
@@ -111,16 +113,28 @@ const Controls: FC<Props> = ({
           </div>
         </div>
       </div>
-      <div>
-        <p style={{ margin: "0px" }}>Volume - {volume.val}%</p>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={volume.val}
-          onChange={(e) => volume.set(Number(e.target.value))}
-        />
-      </div>
+      <FlexDiv style={{ justifyContent: "space-between", width: "100%" }}>
+        <div>
+          <p style={{ margin: "0px 0px 5px 0" }}>Volume - {volume.val}%</p>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={volume.val}
+            onChange={(e) => volume.set(Number(e.target.value))}
+          />
+        </div>
+        <div>
+          <p style={{ margin: "0px 0px 5px 0" }}>Visualizer</p>
+          <select
+            name="cars"
+            id="cars"
+            style={{ width: "150px", fontSize: "16px" }}
+          >
+            <option value="candles">Candles</option>
+          </select>
+        </div>
+      </FlexDiv>
     </div>
   );
 };

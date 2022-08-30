@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import clrUtils from "./clrUtils";
 
-type setNewSongProps = {
+export type setNewSongProps = {
   player?: HTMLAudioElement;
   file: File;
   setCurrFile: Dispatch<SetStateAction<File | undefined>>;
@@ -64,7 +64,7 @@ const pause = ({ player, setIsPlaying }: pauseProps) => {
   setIsPlaying(false);
 };
 
-type playProps = {
+export type playProps = {
   player?: HTMLAudioElement;
   audioFiles?: File[];
   currFile?: File;
