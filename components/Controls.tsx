@@ -6,42 +6,68 @@ import {
   useEffect,
   useState,
 } from "react";
+import { Animations } from "../animations/AnimationList";
 import { Clrs } from "../styles/consts";
 import FlexDiv from "../styles/FlexDiv";
+import { Animation } from "../types/AnimationTypes";
 import { formatS } from "../utils/timeUtils";
 
 type Props = {
-  onFiles(event: ChangeEvent<HTMLInputElement>): void;
-  clearFiles(): void;
-  play(): void;
-  pause(): void;
-  volume: { val: number; set: Dispatch<SetStateAction<number>> };
-  isPlaying: boolean;
-  player?: HTMLAudioElement;
+  player?: HTMLAudioElement | null;
+  setAudioFiles: Dispatch<SetStateAction<File[]>>;
+  setCurrFile: Dispatch<SetStateAction<File | undefined>>;
+  currFile: File | undefined;
+  setAnimation: Dispatch<SetStateAction<Animation | undefined>>;
+  animation?: Animation;
 };
 
 const Controls: FC<Props> = ({
-  onFiles,
-  clearFiles,
-  play,
-  pause,
-  volume,
-  isPlaying,
   player,
+  setAudioFiles,
+  setCurrFile,
+  currFile,
+  setAnimation,
+  animation,
 }) => {
   const [duration, setDuration] = useState<number>();
   const [playTime, setPlayTime] = useState<number>(0);
+  const [volume, setVolume] = useState(50);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (player) {
-      player.ondurationchange = (ev) => {
-        setDuration(Math.floor(player.duration));
-      };
-      player.ontimeupdate = (ev) => {
-        setPlayTime(Math.floor(player.currentTime));
-      };
+      player.volume = volume / 100;
+    }
+  }, [volume, player]);
+
+  useEffect(() => {
+    if (player) {
+      player.onpause = (e) => !player.ended && setIsPlaying(false);
+      player.onplay = () => setIsPlaying(true);
     }
   }, [player]);
+
+  useEffect(() => {
+    if (player) {
+      player.ondurationchange = () => setDuration(Math.floor(player.duration));
+      player.ontimeupdate = () => setPlayTime(Math.floor(player.currentTime));
+    }
+  }, [player]);
+
+  const onFiles = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const filesArr = [...files];
+      setAudioFiles((existingFiles) =>
+        existingFiles ? [...existingFiles, ...filesArr] : filesArr
+      );
+      if (!currFile) {
+        setCurrFile(filesArr[Math.floor(Math.random() * filesArr.length)]);
+      }
+    }
+  };
+
+  const clearFiles = () => setAudioFiles([]);
 
   return (
     <div
@@ -91,7 +117,7 @@ const Controls: FC<Props> = ({
             fontSize: "18px",
             padding: "5px",
           }}
-          onClick={isPlaying ? pause : play}
+          onClick={isPlaying ? player?.play : player?.pause}
         >
           {isPlaying ? "Pause" : "Play"}
         </button>
@@ -115,23 +141,32 @@ const Controls: FC<Props> = ({
       </div>
       <FlexDiv style={{ justifyContent: "space-between", width: "100%" }}>
         <div>
-          <p style={{ margin: "0px 0px 5px 0" }}>Volume - {volume.val}%</p>
+          <p style={{ margin: "0px 0px 5px 0" }}>Volume - {volume}%</p>
           <input
             type="range"
             min="0"
             max="100"
-            value={volume.val}
-            onChange={(e) => volume.set(Number(e.target.value))}
+            value={volume}
+            onChange={(e) => setVolume(Number(e.target.value))}
           />
         </div>
         <div>
           <p style={{ margin: "0px 0px 5px 0" }}>Visualizer</p>
           <select
-            name="cars"
-            id="cars"
             style={{ width: "150px", fontSize: "16px" }}
+            value={animation?.id}
+            onChange={(e) => {
+              const newAnimation = Animations.find(
+                ({ id }) => id === e.target.value
+              );
+              setAnimation(newAnimation);
+            }}
           >
-            <option value="candles">Candles</option>
+            {Animations.map(({ id, name }) => (
+              <option value={id} key={id}>
+                {name}
+              </option>
+            ))}
           </select>
         </div>
       </FlexDiv>

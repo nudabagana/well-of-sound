@@ -1,30 +1,13 @@
 import { Dispatch, FC, SetStateAction } from "react";
 import { Clrs } from "../styles/consts";
-import { playProps, setNewSongProps } from "../utils/HomeUtils";
 
 type Props = {
   audioFiles?: File[];
-  setNewSong(props: setNewSongProps): Promise<void>;
-  play(props: playProps): void;
   currFile?: File;
-  player?: HTMLAudioElement;
   setCurrFile: Dispatch<SetStateAction<File | undefined>>;
-  setIsPlaying: Dispatch<SetStateAction<boolean>>;
-  setPlayer: Dispatch<SetStateAction<HTMLAudioElement | undefined>>;
-  canvas: HTMLCanvasElement | null;
 };
 
-const TrackList: FC<Props> = ({
-  audioFiles,
-  setNewSong,
-  play,
-  currFile,
-  player,
-  setCurrFile,
-  setIsPlaying,
-  setPlayer,
-  canvas,
-}) => {
+const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
   return (
     <div
       style={{
@@ -40,20 +23,7 @@ const TrackList: FC<Props> = ({
         return (
           <div
             key={name}
-            onDoubleClick={() =>
-              setNewSong({ file, player, setCurrFile }).then(() =>
-                play({
-                  player,
-                  setCurrFile,
-                  audioFiles,
-                  currFile,
-                  setIsPlaying,
-                  setPlayer,
-                  canvas,
-                  songToPlay: file,
-                })
-              )
-            }
+            onDoubleClick={() => setCurrFile(file)}
             style={{
               backgroundColor:
                 file.name === currFile?.name ? Clrs.primary : undefined,
