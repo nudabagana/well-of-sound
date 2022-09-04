@@ -12,7 +12,11 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
   const canvas = canvasRef.current;
 
   useEffect(() => {
-    window.onkeydown = (e) => e.key === "Escape" && setFullScreen(false);
+    window.onkeydown = (e) => {
+      if (e.key === "Escape") {
+        setFullScreen(false);
+      }
+    };
   }, []);
 
   useEffect(() => {
