@@ -1,3 +1,4 @@
+import { v4 as uuid } from "uuid";
 import {
   ChangeEvent,
   Dispatch,
@@ -10,15 +11,18 @@ import { Animations } from "../animations/AnimationList";
 import { Clrs } from "../styles/consts";
 import FlexDiv from "../styles/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
+import { FileWithId } from "../types/FileTypes";
 import { formatS } from "../utils/timeUtils";
+import ShuffleIcon from "../icons/ShuffleIcon";
 
 type Props = {
   player?: HTMLAudioElement | null;
-  setAudioFiles: Dispatch<SetStateAction<File[]>>;
-  setCurrFile: Dispatch<SetStateAction<File | undefined>>;
-  currFile: File | undefined;
+  setAudioFiles: Dispatch<SetStateAction<FileWithId[]>>;
+  setCurrFile: Dispatch<SetStateAction<FileWithId | undefined>>;
+  currFile: FileWithId | undefined;
   setAnimation: Dispatch<SetStateAction<Animation | undefined>>;
   animation?: Animation;
+  audioFiles: FileWithId[];
 };
 
 const Controls: FC<Props> = ({
@@ -28,11 +32,13 @@ const Controls: FC<Props> = ({
   currFile,
   setAnimation,
   animation,
+  audioFiles,
 }) => {
   const [duration, setDuration] = useState<number>();
   const [playTime, setPlayTime] = useState<number>(0);
   const [volume, setVolume] = useState(50);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [shuffle, setShuffle] = useState(true);
 
   useEffect(() => {
     if (player) {
@@ -54,10 +60,28 @@ const Controls: FC<Props> = ({
     }
   }, [player]);
 
+  useEffect(() => {
+    if (player) {
+      player.onended = () => {
+        const nextFile =
+          shuffle || !currFile
+            ? audioFiles[Math.floor(Math.random() * audioFiles.length)]
+            : audioFiles[audioFiles.indexOf(currFile) + 1];
+
+        if (!nextFile) {
+          setIsPlaying(false);
+        } else {
+          setCurrFile(nextFile);
+        }
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player, audioFiles, shuffle, currFile]);
+
   const onFiles = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const filesArr = [...files];
+      const filesArr = [...files].map((file) => ({ file, id: uuid() }));
       setAudioFiles((existingFiles) =>
         existingFiles ? [...existingFiles, ...filesArr] : filesArr
       );
@@ -117,7 +141,7 @@ const Controls: FC<Props> = ({
             fontSize: "18px",
             padding: "5px",
           }}
-          onClick={isPlaying ? player?.play : player?.pause}
+          onClick={() => (isPlaying ? player?.pause() : player?.play())}
         >
           {isPlaying ? "Pause" : "Play"}
         </button>
@@ -149,6 +173,12 @@ const Controls: FC<Props> = ({
             value={volume}
             onChange={(e) => setVolume(Number(e.target.value))}
           />
+        </div>
+        <div
+          style={{ display: "flex", alignItems: "center" }}
+          onClick={() => setShuffle((s) => !s)}
+        >
+          <ShuffleIcon active={shuffle} />
         </div>
         <div>
           <p style={{ margin: "0px 0px 5px 0" }}>Visualizer</p>

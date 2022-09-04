@@ -1,10 +1,11 @@
 import { Dispatch, FC, SetStateAction } from "react";
 import { Clrs } from "../styles/consts";
+import { FileWithId } from "../types/FileTypes";
 
 type Props = {
-  audioFiles?: File[];
-  currFile?: File;
-  setCurrFile: Dispatch<SetStateAction<File | undefined>>;
+  audioFiles?: FileWithId[];
+  currFile?: FileWithId;
+  setCurrFile: Dispatch<SetStateAction<FileWithId | undefined>>;
 };
 
 const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
@@ -18,18 +19,17 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
         padding: "5px",
       }}
     >
-      {audioFiles?.map((file, i) => {
-        const { name } = file;
+      {audioFiles?.map((fileObj, i) => {
+        const { file, id } = fileObj;
         return (
           <div
-            key={name}
-            onDoubleClick={() => setCurrFile(file)}
+            key={id}
+            onDoubleClick={() => setCurrFile(fileObj)}
             style={{
-              backgroundColor:
-                file.name === currFile?.name ? Clrs.primary : undefined,
+              backgroundColor: id === currFile?.id ? Clrs.primary : undefined,
             }}
           >
-            {i} - {name}
+            {i} - {file.name}
           </div>
         );
       })}

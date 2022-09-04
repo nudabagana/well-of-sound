@@ -6,10 +6,11 @@ import TrackList from "../components/TrackList";
 import Visualizer from "../components/Visualizer";
 import FlexDiv from "../styles/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
+import { FileWithId } from "../types/FileTypes";
 
 const Home: NextPage = () => {
-  const [audioFiles, setAudioFiles] = useState<File[]>([]);
-  const [currFile, setCurrFile] = useState<File>();
+  const [audioFiles, setAudioFiles] = useState<FileWithId[]>([]);
+  const [currFile, setCurrFile] = useState<FileWithId>();
   const [animation, setAnimation] = useState<Animation | undefined>(
     Animations[0]
   );
@@ -18,18 +19,10 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (player && currFile) {
-      player.src = URL.createObjectURL(currFile);
+      player.src = URL.createObjectURL(currFile.file);
       player.play();
     }
   }, [currFile, player]);
-
-  useEffect(() => {
-    if (player) {
-      player.onended = () => {
-        setCurrFile(audioFiles[Math.floor(Math.random() * audioFiles.length)]);
-      };
-    }
-  }, [player, audioFiles]);
 
   return (
     <FlexDiv style={{ gap: "20px", flex: 1, padding: "10px" }}>
@@ -41,6 +34,7 @@ const Home: NextPage = () => {
           player={player}
           setAnimation={setAnimation}
           animation={animation}
+          audioFiles={audioFiles}
         />
         <TrackList
           setCurrFile={setCurrFile}
