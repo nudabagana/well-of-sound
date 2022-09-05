@@ -124,6 +124,7 @@ const Controls: FC<Props> = ({
             marginBottom: "auto",
             fontSize: "18px",
             width: "280px",
+            color: "transparent",
           }}
           onClick={(event) => {
             if (event.target instanceof HTMLInputElement) {
