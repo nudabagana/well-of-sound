@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
 import { Animations } from "../animations/AnimationList";
 import Controls from "../components/Controls";
+import InfoBar from "../components/InfoBar";
 import TrackList from "../components/TrackList";
 import Visualizer from "../components/Visualizer";
 import FlexDiv from "../styles/FlexDiv";
@@ -42,7 +43,10 @@ const Home: NextPage = () => {
           currFile={currFile}
         />
       </FlexDiv>
-      <Visualizer player={player} animation={animation} />
+      <FlexDiv column>
+        <InfoBar songName={currFile?.file.name} />
+        <Visualizer player={player} animation={animation} />
+      </FlexDiv>
       <audio ref={playerRef} style={{ display: "none" }} />
     </FlexDiv>
   );

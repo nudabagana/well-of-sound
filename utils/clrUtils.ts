@@ -15,6 +15,6 @@ const getRandomClr = () => {
   );
 };
 
-const exports = { getRandomClr };
+const clrUtils = { getRandomClr };
 
-export default exports;
+export default clrUtils;

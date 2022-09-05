@@ -9,5 +9,5 @@ const getBase = () => {
   return { setId, stop };
 };
 
-const exports = { getBase };
-export default exports;
+const AnimationBase = { getBase };
+export default AnimationBase;

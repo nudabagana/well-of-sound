@@ -1,6 +1,7 @@
 import { Dispatch, FC, SetStateAction } from "react";
 import { Clrs } from "../styles/consts";
 import { FileWithId } from "../types/FileTypes";
+import stringUtils from "../utils/stringUtils";
 
 type Props = {
   audioFiles?: FileWithId[];
@@ -29,7 +30,7 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
               backgroundColor: id === currFile?.id ? Clrs.primary : undefined,
             }}
           >
-            {i} - {file.name}
+            {i} - {stringUtils.trimExtension(file.name)}
           </div>
         );
       })}

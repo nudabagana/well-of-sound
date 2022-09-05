@@ -52,6 +52,7 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
       style={{
         border: `solid 3px ${Clrs.primary}`,
         width: "100%",
+        height: "100%",
         position: "relative",
       }}
       onDoubleClick={() => setFullScreen((f) => !f)}

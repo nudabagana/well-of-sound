@@ -33,5 +33,5 @@ const getAnimateFunc = ({ ctx, analyser, canvas }: AnimationProps) => {
   return { start, stop };
 };
 
-const exports = { getAnimateFunc };
-export default exports;
+const BarFatAnimation = { getAnimateFunc };
+export default BarFatAnimation;
