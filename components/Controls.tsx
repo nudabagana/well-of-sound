@@ -14,6 +14,7 @@ import { Animation } from "../types/AnimationTypes";
 import { FileWithId } from "../types/FileTypes";
 import { formatS } from "../utils/timeUtils";
 import ShuffleIcon from "../icons/ShuffleIcon";
+import Button from "../styles/Button";
 
 type Props = {
   player?: HTMLAudioElement | null;
@@ -112,27 +113,41 @@ const Controls: FC<Props> = ({
         marginBottom: "10px",
       }}
     >
-      <div style={{ display: "flex", alignItems: "start" }}>
-        <input
-          type="file"
-          name="myImage"
-          accept=".mp3,audio/*"
-          multiple
-          onChange={onFiles}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          width: "100%",
+        }}
+      >
+        <label
           style={{
+            fontSize: "18px",
+            padding: "5px",
             marginTop: "auto",
             marginBottom: "auto",
-            fontSize: "18px",
-            width: "280px",
-            color: "transparent",
+            background: Clrs.primary,
+            cursor: "pointer",
           }}
-          onClick={(event) => {
-            if (event.target instanceof HTMLInputElement) {
-              event.target.value = "";
-            }
-          }}
-        />
-        <button
+        >
+          <input
+            type="file"
+            name="myImage"
+            accept=".mp3,audio/*"
+            multiple
+            onChange={onFiles}
+            style={{
+              display: "none",
+            }}
+            onClick={(event) => {
+              if (event.target instanceof HTMLInputElement) {
+                event.target.value = "";
+              }
+            }}
+          />
+          Add Files
+        </label>
+        <Button
           style={{
             fontSize: "18px",
             padding: "5px",
@@ -140,10 +155,10 @@ const Controls: FC<Props> = ({
           onClick={clearFiles}
         >
           Clear files
-        </button>
+        </Button>
       </div>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <button
+        <Button
           style={{
             fontSize: "18px",
             padding: "5px",
@@ -151,7 +166,7 @@ const Controls: FC<Props> = ({
           onClick={() => (isPlaying ? player?.pause() : player?.play())}
         >
           {isPlaying ? "Pause" : "Play"}
-        </button>
+        </Button>
         <div style={{ display: "flex", alignItems: "center" }}>
           <input
             type="range"

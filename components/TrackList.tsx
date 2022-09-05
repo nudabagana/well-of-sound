@@ -17,7 +17,6 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
         width: "400px",
         overflow: "auto",
         border: `solid 3px ${Clrs.primary}`,
-        padding: "5px",
       }}
     >
       {audioFiles?.map((fileObj, i) => {
@@ -28,6 +27,7 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
             onDoubleClick={() => setCurrFile(fileObj)}
             style={{
               backgroundColor: id === currFile?.id ? Clrs.primary : undefined,
+              padding: "2px 5px 2px 5px",
             }}
           >
             {i} - {stringUtils.trimExtension(file.name)}
