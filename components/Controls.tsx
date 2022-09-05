@@ -63,10 +63,16 @@ const Controls: FC<Props> = ({
   useEffect(() => {
     if (player) {
       player.onended = () => {
-        const nextFile =
+        let nextFile =
           shuffle || !currFile
             ? audioFiles[Math.floor(Math.random() * audioFiles.length)]
             : audioFiles[audioFiles.indexOf(currFile) + 1];
+
+        if (nextFile === currFile) {
+          nextFile =
+            audioFiles[audioFiles.indexOf(currFile) + 1] ??
+            audioFiles[audioFiles.indexOf(currFile) - 1];
+        }
 
         if (!nextFile) {
           setIsPlaying(false);

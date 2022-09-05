@@ -15,6 +15,9 @@ const getRandomClr = () => {
   );
 };
 
-const clrUtils = { getRandomClr };
+const getHSL = (h: number, s: number, l: number) =>
+  `hsl(${h.toFixed(0)},${s}%,${l}%)`;
+
+const clrUtils = { getRandomClr, getHSL };
 
 export default clrUtils;

@@ -2,29 +2,34 @@ import { AnimationProps } from "../types/AnimationTypes";
 import clrUtils from "../utils/clrUtils";
 import AnimationBase from "./AnimationBase";
 
+const BAR_COUNT = 256;
+const L = 50;
+
 const getAnimateFunc = ({ ctx, analyser, canvas }: AnimationProps) => {
   const { setId, stop } = AnimationBase.getBase();
-  analyser.fftSize = 128;
+  analyser.fftSize = BAR_COUNT;
   const bufferLength = analyser.frequencyBinCount;
   const dataArr = new Uint8Array(bufferLength);
-  const barWidth = canvas.width / bufferLength;
+  const barWidth = canvas.width / bufferLength / 2;
 
-  let lastChange = 0;
   const startMS = Date.now();
 
   const start = () => {
-    const passedS = Math.floor((Date.now() - startMS) / 1000);
-    if (passedS % 3 === 0 && lastChange !== passedS) {
-      ctx.fillStyle = clrUtils.getRandomClr();
-      lastChange = passedS;
-    }
+    const passed200Ms = Math.floor((Date.now() - startMS) / 200);
     let x = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     analyser.getByteFrequencyData(dataArr);
+    const halfCanvasW = canvas.width / 2;
 
     for (let i = 0; i < bufferLength; i++) {
-      const barHeight = dataArr[i] / 255;
-      ctx.fillRect(x, canvas.height * (1 - barHeight), barWidth, canvas.height);
+      const barHeightPrc = dataArr[i] / 255;
+      const h = (passed200Ms + i * 2.8) % 360;
+      const s = 30 + 70 * barHeightPrc;
+      ctx.fillStyle = clrUtils.getHSL(h, s, L);
+      const y = canvas.height * (1 - barHeightPrc);
+
+      ctx.fillRect(halfCanvasW + x, y, barWidth, canvas.height);
+      ctx.fillRect(halfCanvasW - x, y, barWidth, canvas.height);
       x += barWidth;
     }
     setId(requestAnimationFrame(start));
