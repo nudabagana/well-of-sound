@@ -1,5 +1,5 @@
 import { FC, useState, useEffect } from "react";
-import { Clrs } from "../styles/consts";
+import { Clrs } from "../styled/consts";
 import stringUtils from "../utils/stringUtils";
 
 type Props = { songName?: string };

@@ -1,5 +1,5 @@
 import { Dispatch, FC, SetStateAction } from "react";
-import { Clrs } from "../styles/consts";
+import { Clrs } from "../styled/consts";
 import { FileWithId } from "../types/FileTypes";
 import stringUtils from "../utils/stringUtils";
 
@@ -14,8 +14,8 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
     <div
       style={{
         flex: "1 0 0px",
-        width: "400px",
         overflow: "auto",
+        minHeight: "200px",
         border: `solid 3px ${Clrs.primary}`,
       }}
     >

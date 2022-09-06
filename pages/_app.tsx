@@ -1,9 +1,10 @@
-import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import Header from "../components/Header";
-import FlexDiv from "../styles/FlexDiv";
-import { Clrs } from "../styles/consts";
+import FlexDiv from "../styled/FlexDiv";
+import { Clrs } from "../styled/consts";
+import { GlobalStyle } from "../styled/globals";
+import { ThemeProvider } from "styled-components";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -11,13 +12,16 @@ function MyApp({ Component, pageProps }: AppProps) {
       column
       style={{ height: "100%", background: Clrs.Bg, color: Clrs.text }}
     >
-      <Head>
-        <title>Well of Sound</title>
-        <meta name="description" content="Music visualizer." />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <Header />
-      <Component {...pageProps} />
+      <ThemeProvider theme={{ clr: Clrs }}>
+        <Head>
+          <title>Well of Sound</title>
+          <meta name="description" content="Music visualizer." />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <Header />
+        <Component {...pageProps} />
+        <GlobalStyle />
+      </ThemeProvider>
     </FlexDiv>
   );
 }

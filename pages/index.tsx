@@ -5,7 +5,8 @@ import Controls from "../components/Controls";
 import InfoBar from "../components/InfoBar";
 import TrackList from "../components/TrackList";
 import Visualizer from "../components/Visualizer";
-import FlexDiv from "../styles/FlexDiv";
+import { MainContainer } from "../styled/containers/MainContainer";
+import FlexDiv from "../styled/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
 import { FileWithId } from "../types/FileTypes";
 
@@ -26,7 +27,7 @@ const Home: NextPage = () => {
   }, [currFile, player]);
 
   return (
-    <FlexDiv style={{ gap: "20px", flex: 1, padding: "10px" }}>
+    <MainContainer>
       <FlexDiv column>
         <Controls
           currFile={currFile}
@@ -43,12 +44,12 @@ const Home: NextPage = () => {
           currFile={currFile}
         />
       </FlexDiv>
-      <FlexDiv column>
+      <FlexDiv column flex1>
         <InfoBar songName={currFile?.file.name} />
         <Visualizer player={player} animation={animation} />
       </FlexDiv>
       <audio ref={playerRef} style={{ display: "none" }} />
-    </FlexDiv>
+    </MainContainer>
   );
 };
 

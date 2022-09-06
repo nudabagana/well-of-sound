@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react";
 import ResizeIcon from "../icons/ResizeIcon";
-import { Clrs } from "../styles/consts";
+import { Clrs } from "../styled/consts";
 import { Animation } from "../types/AnimationTypes";
 
 type Props = { player?: HTMLAudioElement | null; animation?: Animation };
@@ -51,7 +51,6 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
     <div
       style={{
         border: `solid 3px ${Clrs.primary}`,
-        width: "100%",
         height: "100%",
         position: "relative",
       }}
@@ -66,9 +65,10 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
           left: 0,
           top: 0,
           zIndex: 10,
-          position: fullScreen ? "fixed" : undefined,
+          position: fullScreen ? "fixed" : "absolute",
         }}
       />
+
       <ResizeIcon
         active={fullScreen}
         onClick={() => setFullScreen((f) => !f)}

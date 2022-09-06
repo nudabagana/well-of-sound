@@ -1,6 +1,6 @@
 import * as React from "react";
 import { FC } from "react";
-import { Clrs } from "../styles/consts";
+import { Clrs } from "../styled/consts";
 
 type IProps = { active?: boolean };
 

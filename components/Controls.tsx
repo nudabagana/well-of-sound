@@ -8,13 +8,15 @@ import {
   useState,
 } from "react";
 import { Animations } from "../animations/AnimationList";
-import { Clrs } from "../styles/consts";
-import FlexDiv from "../styles/FlexDiv";
+import { Clrs } from "../styled/consts";
+import FlexDiv from "../styled/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
 import { FileWithId } from "../types/FileTypes";
 import { formatS } from "../utils/timeUtils";
 import ShuffleIcon from "../icons/ShuffleIcon";
-import Button from "../styles/Button";
+import Button from "../styled/buttons/Button";
+import { FileInputWrapper } from "../styled/buttons/FileInputWrapper";
+import PlayPauseIcon from "../icons/PlayPauseIcon";
 
 type Props = {
   player?: HTMLAudioElement | null;
@@ -120,25 +122,12 @@ const Controls: FC<Props> = ({
           width: "100%",
         }}
       >
-        <label
-          style={{
-            fontSize: "18px",
-            padding: "5px",
-            marginTop: "auto",
-            marginBottom: "auto",
-            background: Clrs.primary,
-            cursor: "pointer",
-          }}
-        >
+        <FileInputWrapper>
           <input
             type="file"
-            name="myImage"
             accept=".mp3,audio/*"
             multiple
             onChange={onFiles}
-            style={{
-              display: "none",
-            }}
             onClick={(event) => {
               if (event.target instanceof HTMLInputElement) {
                 event.target.value = "";
@@ -146,7 +135,7 @@ const Controls: FC<Props> = ({
             }}
           />
           Add Files
-        </label>
+        </FileInputWrapper>
         <Button
           style={{
             fontSize: "18px",
@@ -157,23 +146,18 @@ const Controls: FC<Props> = ({
           Clear files
         </Button>
       </div>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <Button
-          style={{
-            fontSize: "18px",
-            padding: "5px",
-          }}
+      <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+        <PlayPauseIcon
           onClick={() => (isPlaying ? player?.pause() : player?.play())}
-        >
-          {isPlaying ? "Pause" : "Play"}
-        </Button>
-        <div style={{ display: "flex", alignItems: "center" }}>
+          active={isPlaying}
+        />
+        <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
           <input
             type="range"
             min={0}
             max={duration}
             value={playTime}
-            style={{ width: "200px", margin: "10px" }}
+            style={{ width: "100%", margin: "10px" }}
             onChange={(e) => {
               if (player) {
                 player.currentTime = Number(e.target.value);
@@ -185,7 +169,9 @@ const Controls: FC<Props> = ({
           </div>
         </div>
       </div>
-      <FlexDiv style={{ justifyContent: "space-between", width: "100%" }}>
+      <FlexDiv
+        style={{ justifyContent: "space-between", width: "100%", gap: "25px" }}
+      >
         <div>
           <p style={{ margin: "0px 0px 5px 0" }}>Volume - {volume}%</p>
           <input
@@ -205,7 +191,7 @@ const Controls: FC<Props> = ({
         <div>
           <p style={{ margin: "0px 0px 5px 0" }}>Visualizer</p>
           <select
-            style={{ width: "150px", fontSize: "16px" }}
+            style={{ width: "100px", fontSize: "16px" }}
             value={animation?.id}
             onChange={(e) => {
               const newAnimation = Animations.find(
