@@ -10,7 +10,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <FlexDiv
       column
-      style={{ height: "100%", background: Clrs.Bg, color: Clrs.text }}
+      style={{
+        height: "100%",
+        minHeight: "700px",
+        background: Clrs.Bg,
+        color: Clrs.text,
+      }}
     >
       <ThemeProvider theme={{ clr: Clrs }}>
         <Head>
