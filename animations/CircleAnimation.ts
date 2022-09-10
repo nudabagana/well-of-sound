@@ -3,7 +3,7 @@ import { AnimationProps } from "../types/AnimationTypes";
 import clrUtils from "../utils/clrUtils";
 import AnimationBase from "./AnimationBase";
 
-const BAR_COUNT = 256;
+const BAR_COUNT = 1024;
 const L = 50;
 
 const getAnimateFunc = ({ ctx, analyser, canvas }: AnimationProps) => {
@@ -11,34 +11,41 @@ const getAnimateFunc = ({ ctx, analyser, canvas }: AnimationProps) => {
   analyser.fftSize = BAR_COUNT;
   const bufferLength = analyser.frequencyBinCount;
   const dataArr = new Uint8Array(bufferLength);
-  const barWidth = canvas.width / bufferLength / 2;
-
   const startMS = Date.now();
 
   const start = () => {
     const passed200Ms = Math.floor((Date.now() - startMS) / 200);
-    let x = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     analyser.getByteFrequencyData(dataArr);
+    const barWidth =
+      (Math.min(canvas.width, canvas.height) / bufferLength) * 1.5;
     const halfCanvasW = canvas.width / 2;
+    const halfCanvasH = canvas.height / 2;
+    const baseBarHeight = Math.min(canvas.width, canvas.height) / 2;
 
+    ctx.save();
+    ctx.translate(halfCanvasW, halfCanvasH);
+    const deg = 900 / bufferLength;
+    const rads = (deg * Math.PI) / 180;
     for (let i = 0; i < bufferLength; i++) {
       const barHeightPrc = dataArr[i] / 255;
-      const h = (passed200Ms + i * 2.8) % 360;
-      const s = 30 + 70 * barHeightPrc;
-      ctx.fillStyle = clrUtils.getHSL(h, s, L);
-      const y = canvas.height * (1 - barHeightPrc);
+      ctx.rotate(rads);
 
-      ctx.fillRect(halfCanvasW + x, y, barWidth, canvas.height);
-      ctx.fillRect(halfCanvasW - x, y, barWidth, canvas.height);
-      x += barWidth;
+      const h = (passed200Ms + i * 2.8) % 360;
+      const s = 100;
+      ctx.fillStyle = clrUtils.getHSL(h, s, L);
+      ctx.fillRect(0, 0, barWidth, baseBarHeight * barHeightPrc);
     }
+    ctx.restore();
     setId(requestAnimationFrame(start));
   };
 
   return { start, stop };
 };
 
-const cssStyle: CSSProperties = {};
-const BarAnimation = { getAnimateFunc, cssStyle };
-export default BarAnimation;
+const cssStyle: CSSProperties = {
+  filter: "blur(1px) brightness(1.4) contrast(1.2)",
+};
+
+const CircleAnimation = { getAnimateFunc, cssStyle };
+export default CircleAnimation;

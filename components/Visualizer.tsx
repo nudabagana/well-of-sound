@@ -66,6 +66,7 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
           top: 0,
           zIndex: 10,
           position: fullScreen ? "fixed" : "absolute",
+          ...animation?.canvasStyle,
         }}
       />
 

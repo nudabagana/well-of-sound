@@ -9,12 +9,13 @@ import { MainContainer } from "../styled/containers/MainContainer";
 import FlexDiv from "../styled/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
 import { FileWithId } from "../types/FileTypes";
+import { randomInt } from "../utils/mathUtls";
 
 const Home: NextPage = () => {
   const [audioFiles, setAudioFiles] = useState<FileWithId[]>([]);
   const [currFile, setCurrFile] = useState<FileWithId>();
   const [animation, setAnimation] = useState<Animation | undefined>(
-    Animations[0]
+    Animations[randomInt(Animations.length)]
   );
   const playerRef = useRef<HTMLAudioElement>(null);
   const player = playerRef.current;
