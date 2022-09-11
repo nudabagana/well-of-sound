@@ -20,22 +20,18 @@ const INITIAL_FILE: AudioFile = {
 
 const Home: NextPage = () => {
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([INITIAL_FILE]);
-  const [currFile, setCurrFile] = useState<AudioFile | undefined>(INITIAL_FILE);
+  const [currFile, setCurrFile] = useState<AudioFile>();
   const [animation, setAnimation] = useState<Animation | undefined>(
     Animations[randomInt(Animations.length)]
   );
   const [player, setPlayer] = useState<HTMLAudioElement>();
 
   useEffect(() => {
-    setPlayer(new Audio());
-  }, []);
-
-  useEffect(() => {
-    if (player && currFile) {
-      const firstSong = !player.src;
-
-      player.src = currFile.url;
-      if (!firstSong) {
+    if (currFile) {
+      if (!player) {
+        setPlayer(new Audio());
+      } else {
+        player.src = currFile.url;
         player.play();
       }
     }

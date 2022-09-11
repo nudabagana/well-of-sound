@@ -101,7 +101,7 @@ const Controls: FC<Props> = ({
       player.onended = () => {
         let nextFile =
           shuffle || !currFile
-            ? audioFiles[Math.floor(Math.random() * audioFiles.length)]
+            ? audioFiles[randomInt(audioFiles.length)]
             : audioFiles[audioFiles.indexOf(currFile) + 1];
 
         if (nextFile === currFile) {
@@ -137,7 +137,18 @@ const Controls: FC<Props> = ({
     }
   };
 
-  const clearFiles = () => setAudioFiles([]);
+  const clearFiles = () => {
+    setAudioFiles([]);
+    setCurrFile(undefined);
+  };
+
+  const onPlay = () => {
+    if (!currFile) {
+      setCurrFile(audioFiles[randomInt(audioFiles.length)]);
+    } else {
+      player?.play();
+    }
+  };
 
   return (
     <div
@@ -185,7 +196,7 @@ const Controls: FC<Props> = ({
       </div>
       <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
         <PlayPauseIcon
-          onClick={() => (isPlaying ? player?.pause() : player?.play())}
+          onClick={() => (isPlaying ? player?.pause() : onPlay())}
           active={isPlaying}
         />
         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
