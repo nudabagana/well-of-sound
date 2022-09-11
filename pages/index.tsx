@@ -8,22 +8,36 @@ import Visualizer from "../components/Visualizer";
 import { MainContainer } from "../styled/containers/MainContainer";
 import FlexDiv from "../styled/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
-import { FileWithId } from "../types/FileTypes";
+import { AudioFile } from "../types/FileTypes";
 import { randomInt } from "../utils/mathUtls";
+import { v4 as uuid } from "uuid";
+
+const INITIAL_FILE: AudioFile = {
+  id: uuid(),
+  name: "Hug a Turtle",
+  url: "/Parry_Gripp_Hug_A_Turtle.mp3",
+};
 
 const Home: NextPage = () => {
-  const [audioFiles, setAudioFiles] = useState<FileWithId[]>([]);
-  const [currFile, setCurrFile] = useState<FileWithId>();
+  const [audioFiles, setAudioFiles] = useState<AudioFile[]>([INITIAL_FILE]);
+  const [currFile, setCurrFile] = useState<AudioFile | undefined>(INITIAL_FILE);
   const [animation, setAnimation] = useState<Animation | undefined>(
     Animations[randomInt(Animations.length)]
   );
-  const playerRef = useRef<HTMLAudioElement>(null);
-  const player = playerRef.current;
+  const [player, setPlayer] = useState<HTMLAudioElement>();
+
+  useEffect(() => {
+    setPlayer(new Audio());
+  }, []);
 
   useEffect(() => {
     if (player && currFile) {
-      player.src = URL.createObjectURL(currFile.file);
-      player.play();
+      const firstSong = !player.src;
+
+      player.src = currFile.url;
+      if (!firstSong) {
+        player.play();
+      }
     }
   }, [currFile, player]);
 
@@ -46,10 +60,9 @@ const Home: NextPage = () => {
         />
       </FlexDiv>
       <FlexDiv column flex1>
-        <InfoBar songName={currFile?.file.name} />
+        <InfoBar songName={currFile?.name} />
         <Visualizer player={player} animation={animation} />
       </FlexDiv>
-      <audio ref={playerRef} style={{ display: "none" }} />
     </MainContainer>
   );
 };

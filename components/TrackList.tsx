@@ -1,12 +1,12 @@
 import { Dispatch, FC, SetStateAction } from "react";
 import { Clrs } from "../styled/consts";
-import { FileWithId } from "../types/FileTypes";
+import { AudioFile } from "../types/FileTypes";
 import stringUtils from "../utils/stringUtils";
 
 type Props = {
-  audioFiles?: FileWithId[];
-  currFile?: FileWithId;
-  setCurrFile: Dispatch<SetStateAction<FileWithId | undefined>>;
+  audioFiles?: AudioFile[];
+  currFile?: AudioFile;
+  setCurrFile: Dispatch<SetStateAction<AudioFile | undefined>>;
 };
 
 const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
@@ -20,7 +20,7 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
       }}
     >
       {audioFiles?.map((fileObj, i) => {
-        const { file, id } = fileObj;
+        const { name, id } = fileObj;
         return (
           <div
             key={id}
@@ -30,7 +30,7 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
               padding: "2px 5px 2px 5px",
             }}
           >
-            {i} - {stringUtils.trimExtension(file.name)}
+            {i} - {stringUtils.trimExtension(name)}
           </div>
         );
       })}

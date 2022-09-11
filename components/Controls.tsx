@@ -1,4 +1,3 @@
-import { v4 as uuid } from "uuid";
 import {
   ChangeEvent,
   Dispatch,
@@ -7,25 +6,30 @@ import {
   useEffect,
   useState,
 } from "react";
+import { v4 as uuid } from "uuid";
 import { Animations } from "../animations/AnimationList";
-import { Clrs } from "../styled/consts";
-import FlexDiv from "../styled/FlexDiv";
-import { Animation } from "../types/AnimationTypes";
-import { FileWithId } from "../types/FileTypes";
-import { formatS } from "../utils/timeUtils";
+import PlayPauseIcon from "../icons/PlayPauseIcon";
 import ShuffleIcon from "../icons/ShuffleIcon";
 import Button from "../styled/buttons/Button";
 import { FileInputWrapper } from "../styled/buttons/FileInputWrapper";
-import PlayPauseIcon from "../icons/PlayPauseIcon";
+import { Clrs } from "../styled/consts";
+import FlexDiv from "../styled/FlexDiv";
+import { Animation } from "../types/AnimationTypes";
+import { AudioFile } from "../types/FileTypes";
+import { randomInt } from "../utils/mathUtls";
+import { formatS, MS_IN_S } from "../utils/timeUtils";
+
+const RANDOM_ID = "random";
+const CHANGE_INTERVAL = 30 * MS_IN_S;
 
 type Props = {
   player?: HTMLAudioElement | null;
-  setAudioFiles: Dispatch<SetStateAction<FileWithId[]>>;
-  setCurrFile: Dispatch<SetStateAction<FileWithId | undefined>>;
-  currFile: FileWithId | undefined;
+  setAudioFiles: Dispatch<SetStateAction<AudioFile[]>>;
+  setCurrFile: Dispatch<SetStateAction<AudioFile | undefined>>;
+  currFile: AudioFile | undefined;
   setAnimation: Dispatch<SetStateAction<Animation | undefined>>;
   animation?: Animation;
-  audioFiles: FileWithId[];
+  audioFiles: AudioFile[];
 };
 
 const Controls: FC<Props> = ({
@@ -42,6 +46,7 @@ const Controls: FC<Props> = ({
   const [volume, setVolume] = useState(50);
   const [isPlaying, setIsPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(true);
+  const [randomAnimation, setRandomAnimation] = useState(true);
 
   useEffect(() => {
     if (player) {
@@ -62,6 +67,34 @@ const Controls: FC<Props> = ({
       player.ontimeupdate = () => setPlayTime(Math.floor(player.currentTime));
     }
   }, [player]);
+
+  useEffect(() => {
+    window.onkeydown = (e) => {
+      if (player) {
+        if (e.key === "ArrowLeft") {
+          player.currentTime -= 15;
+        } else if (e.key === "ArrowRight") {
+          player.currentTime += 15;
+        } else if (e.key === " ") {
+          player.paused ? player.play() : player.pause();
+        }
+      }
+    };
+  }, [player]);
+
+  useEffect(() => {
+    let intervalId: number | undefined = undefined;
+    const changeAnimation = () =>
+      setAnimation(Animations[randomInt(Animations.length)]);
+    if (randomAnimation && player) {
+      intervalId = window.setInterval(changeAnimation, CHANGE_INTERVAL);
+    }
+    return () => {
+      if (intervalId !== undefined) {
+        window.clearInterval(intervalId);
+      }
+    };
+  }, [randomAnimation, setAnimation, player]);
 
   useEffect(() => {
     if (player) {
@@ -90,7 +123,11 @@ const Controls: FC<Props> = ({
   const onFiles = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const filesArr = [...files].map((file) => ({ file, id: uuid() }));
+      const filesArr = [...files].map((file) => ({
+        name: file.name,
+        url: URL.createObjectURL(file),
+        id: uuid(),
+      }));
       setAudioFiles((existingFiles) =>
         existingFiles ? [...existingFiles, ...filesArr] : filesArr
       );
@@ -192,19 +229,27 @@ const Controls: FC<Props> = ({
           <p style={{ margin: "0px 0px 5px 0" }}>Visualizer</p>
           <select
             style={{ width: "100px", fontSize: "16px" }}
-            value={animation?.id}
+            value={randomAnimation ? RANDOM_ID : animation?.id}
             onChange={(e) => {
-              const newAnimation = Animations.find(
-                ({ id }) => id === e.target.value
-              );
-              setAnimation(newAnimation);
+              const val = e.target.value;
+              if (val === RANDOM_ID) {
+                setRandomAnimation(true);
+              } else {
+                const newAnimation = Animations.find(
+                  ({ id }) => id === e.target.value
+                );
+                setAnimation(newAnimation);
+                setRandomAnimation(false);
+              }
             }}
           >
-            {Animations.map(({ id, name }) => (
-              <option value={id} key={id}>
-                {name}
-              </option>
-            ))}
+            {[{ id: RANDOM_ID, name: "Random" }, ...Animations].map(
+              ({ id, name }) => (
+                <option value={id} key={id}>
+                  {name}
+                </option>
+              )
+            )}
           </select>
         </div>
       </FlexDiv>

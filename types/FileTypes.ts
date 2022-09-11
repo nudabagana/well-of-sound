@@ -1,1 +1,1 @@
-export type FileWithId = { id: string; file: File };
+export type AudioFile = { id: string; url: string; name: string };
