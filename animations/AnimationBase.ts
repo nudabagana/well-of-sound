@@ -1,4 +1,6 @@
-const getBase = () => {
+import { Analyser } from "../types/AnimationTypes";
+
+const getBase = (analyser: Analyser, barCount: number) => {
   let requestId: number | undefined = undefined;
   const stop = () => {
     if (requestId) {
@@ -6,7 +8,13 @@ const getBase = () => {
     }
   };
   const setId = (id: number) => (requestId = id);
-  return { setId, stop };
+
+  analyser.fftSize = barCount;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArr = new Uint8Array(bufferLength);
+  const startMs = Date.now();
+
+  return { setId, stop, bufferLength, dataArr, startMs };
 };
 
 const AnimationBase = { getBase };

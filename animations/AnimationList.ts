@@ -2,6 +2,8 @@ import { Animation } from "../types/AnimationTypes";
 import BarAnimation from "./BarAnimation";
 import CircleAnimation from "./CircleAnimation";
 import FuncAnimation from "./FuncAnimation";
+import ThreeFanAnimation from "./ThreeFanAnimation";
+import TwoFanAnimation from "./TwoFanAnimation";
 
 export const Animations: Animation[] = [
   {
@@ -21,5 +23,17 @@ export const Animations: Animation[] = [
     name: "Sine",
     getFunc: FuncAnimation.getAnimateFunc,
     canvasStyle: FuncAnimation.cssStyle,
+  },
+  {
+    id: "2fan",
+    name: "2Fan",
+    getFunc: TwoFanAnimation.getAnimateFunc,
+    canvasStyle: TwoFanAnimation.cssStyle,
+  },
+  {
+    id: "3fan",
+    name: "3Fan",
+    getFunc: ThreeFanAnimation.getAnimateFunc,
+    canvasStyle: ThreeFanAnimation.cssStyle,
   },
 ];

@@ -7,16 +7,14 @@ const BAR_COUNT = 256;
 const L = 50;
 
 const getAnimateFunc = ({ ctx, analyser, canvas }: AnimationProps) => {
-  const { setId, stop } = AnimationBase.getBase();
-  analyser.fftSize = BAR_COUNT;
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArr = new Uint8Array(bufferLength);
-  const barWidth = canvas.width / bufferLength / 2;
-
-  const startMS = Date.now();
+  const { setId, stop, bufferLength, dataArr, startMs } = AnimationBase.getBase(
+    analyser,
+    BAR_COUNT
+  );
 
   const start = () => {
-    const passed200Ms = Math.floor((Date.now() - startMS) / 200);
+    const barWidth = canvas.width / bufferLength / 2;
+    const passed200Ms = Math.floor((Date.now() - startMs) / 200);
     let x = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     analyser.getByteFrequencyData(dataArr);

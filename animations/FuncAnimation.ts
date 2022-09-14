@@ -5,20 +5,18 @@ import AnimationBase from "./AnimationBase";
 
 const BAR_COUNT = 256;
 const FUNC_WEIGHT = 0.3;
+const SOUND_WEIGHT = 1 - FUNC_WEIGHT;
 const L = 50;
 
 const getAnimateFunc = ({ ctx, analyser, canvas }: AnimationProps) => {
-  const soundWeight = 1 - FUNC_WEIGHT;
-  const { setId, stop } = AnimationBase.getBase();
-  analyser.fftSize = BAR_COUNT;
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArr = new Uint8Array(bufferLength);
-  const barWidth = canvas.width / bufferLength;
-
-  const startMS = Date.now();
+  const { setId, stop, bufferLength, dataArr, startMs } = AnimationBase.getBase(
+    analyser,
+    BAR_COUNT
+  );
 
   const start = () => {
-    const passed200Ms = Math.floor((Date.now() - startMS) / 200);
+    const barWidth = canvas.width / bufferLength;
+    const passed200Ms = Math.floor((Date.now() - startMs) / 200);
     const halfHeight = canvas.height / 2;
     analyser.getByteFrequencyData(dataArr);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -38,7 +36,7 @@ const getAnimateFunc = ({ ctx, analyser, canvas }: AnimationProps) => {
       const x = i * barWidth;
       const y =
         (sinFromPrc(widthPrc) * FUNC_WEIGHT +
-          sinFromPrc(barHeightPrc) * soundWeight) *
+          sinFromPrc(barHeightPrc) * SOUND_WEIGHT) *
         halfHeight;
       ctx.beginPath();
       ctx.moveTo(prevX, prevY);

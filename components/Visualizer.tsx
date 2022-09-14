@@ -1,12 +1,12 @@
 import { FC, useEffect, useRef, useState } from "react";
 import ResizeIcon from "../icons/ResizeIcon";
 import { Clrs } from "../styled/consts";
-import { Animation } from "../types/AnimationTypes";
+import { Analyser, Animation } from "../types/AnimationTypes";
 
 type Props = { player?: HTMLAudioElement | null; animation?: Animation };
 
 const Visualizer: FC<Props> = ({ player, animation }) => {
-  const [analyser, setAnalyser] = useState<AnalyserNode>();
+  const [analyser, setAnalyser] = useState<Analyser>();
   const [fullScreen, setFullScreen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvas = canvasRef.current;
