@@ -12,9 +12,14 @@ export type AnimationProps = {
   canvas: HTMLCanvasElement;
 };
 
+export type GetFuncType = (
+  p: AnimationProps,
+  params?: number[]
+) => { start(): void; stop(): void };
+
 export type Animation = {
   id: string;
   name: string;
-  getFunc: (p: AnimationProps, params?: any) => { start(): void; stop(): void };
+  getFunc: GetFuncType;
   canvasStyle: CSSProperties;
 };

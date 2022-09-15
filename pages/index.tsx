@@ -11,6 +11,7 @@ import { Animation } from "../types/AnimationTypes";
 import { AudioFile } from "../types/FileTypes";
 import { randomInt } from "../utils/mathUtls";
 import { v4 as uuid } from "uuid";
+import { getUrlParam } from "../utils/urlUtils";
 
 const INITIAL_FILE: AudioFile = {
   id: uuid(),
@@ -21,9 +22,10 @@ const INITIAL_FILE: AudioFile = {
 const Home: NextPage = () => {
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([INITIAL_FILE]);
   const [currFile, setCurrFile] = useState<AudioFile>();
-  const [animation, setAnimation] = useState<Animation | undefined>(
-    Animations[randomInt(Animations.length)]
-  );
+  const [animation, setAnimation] = useState<Animation | undefined>(() => {
+    const animation = Animations.find((a) => a.id === getUrlParam("animation"));
+    return animation ?? Animations[randomInt(Animations.length)];
+  });
   const [player, setPlayer] = useState<HTMLAudioElement>();
 
   useEffect(() => {

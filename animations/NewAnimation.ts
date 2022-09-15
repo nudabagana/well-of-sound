@@ -35,19 +35,6 @@ const getAnimateFunc: GetFuncType = ({ ctx, analyser, canvas }, params) => {
       x += barWidth;
       ctx.restore();
     }
-
-    // const deg = 900 / bufferLength;
-    // const rads = (deg * Math.PI) / 180;
-    // for (let i = 0; i < bufferLength; i++) {
-    //   const barHeightPrc = dataArr[i] / 255;
-    //   ctx.rotate(rads);
-
-    //   const h = (passed200Ms + i * 2.8) % 360;
-    //   const s = 100;
-    //   ctx.fillStyle = clrUtils.getHSL(h, s, L);
-    //   ctx.fillRect(0, 0, barWidth, baseBarHeight * barHeightPrc);
-    // }
-    // ctx.restore();
     setId(requestAnimationFrame(draw));
   };
 

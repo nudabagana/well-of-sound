@@ -18,6 +18,7 @@ import { Animation } from "../types/AnimationTypes";
 import { AudioFile } from "../types/FileTypes";
 import { randomInt } from "../utils/mathUtls";
 import { formatS, MS_IN_S } from "../utils/timeUtils";
+import { getUrlParam } from "../utils/urlUtils";
 
 const RANDOM_ID = "random";
 const CHANGE_INTERVAL = 30 * MS_IN_S;
@@ -46,7 +47,10 @@ const Controls: FC<Props> = ({
   const [volume, setVolume] = useState(50);
   const [isPlaying, setIsPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(true);
-  const [randomAnimation, setRandomAnimation] = useState(true);
+  const [randomAnimation, setRandomAnimation] = useState(() => {
+    const animation = Animations.find((a) => a.id === getUrlParam("animation"));
+    return !animation;
+  });
 
   useEffect(() => {
     if (player) {
@@ -69,7 +73,7 @@ const Controls: FC<Props> = ({
   }, [player]);
 
   useEffect(() => {
-    window.onkeydown = (e) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (player) {
         if (e.key === "ArrowLeft") {
           player.currentTime -= 15;
@@ -80,6 +84,9 @@ const Controls: FC<Props> = ({
         }
       }
     };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [player]);
 
   useEffect(() => {

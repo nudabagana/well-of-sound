@@ -7,7 +7,7 @@ import FakeAnalyser from "../workshop/FakeAnalyser";
 const paramMin = 0;
 const paramMax = 1000;
 
-const animation = Animations[4];
+const animation = Animations[3];
 
 const Workshop: FC = () => {
   const [param1, setParam1] = useState(0);
@@ -33,13 +33,7 @@ const Workshop: FC = () => {
         analyser: FakeAnalyser.create(256),
         canvas,
       },
-      {
-        deg: param1 * 0.36,
-        deg2: param2 * 0.36,
-        hue1: param3 * 0.36,
-        hue2: param4 * 0.36,
-        hue3: param5 * 0.36,
-      }
+      [param1, param2, param3, param4, param5]
     );
 
     start();

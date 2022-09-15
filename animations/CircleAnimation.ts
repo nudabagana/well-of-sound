@@ -1,12 +1,12 @@
 import { CSSProperties } from "react";
-import { AnimationProps } from "../types/AnimationTypes";
+import { AnimationProps, GetFuncType } from "../types/AnimationTypes";
 import clrUtils from "../utils/clrUtils";
 import AnimationBase from "./AnimationBase";
 
 const BAR_COUNT = 1024;
 const L = 50;
 
-const getAnimateFunc = ({ ctx, analyser, canvas }: AnimationProps) => {
+const getAnimateFunc: GetFuncType = ({ ctx, analyser, canvas }) => {
   const { setId, stop, bufferLength, dataArr, startMs } = AnimationBase.getBase(
     analyser,
     BAR_COUNT

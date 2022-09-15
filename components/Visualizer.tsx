@@ -12,11 +12,22 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
   const canvas = canvasRef.current;
 
   useEffect(() => {
-    window.onkeydown = (e) => {
+    if (fullScreen) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [fullScreen]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setFullScreen(false);
       }
     };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
   useEffect(() => {

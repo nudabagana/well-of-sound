@@ -1,5 +1,5 @@
 import { CSSProperties } from "react";
-import { AnimationProps } from "../types/AnimationTypes";
+import { AnimationProps, GetFuncType } from "../types/AnimationTypes";
 import clrUtils from "../utils/clrUtils";
 import AnimationBase from "./AnimationBase";
 
@@ -11,10 +11,7 @@ const HUE1 = 295;
 const HUE2 = 166;
 const HUE_MUL = 0.47;
 
-const getAnimateFunc = (
-  { ctx, analyser, canvas }: AnimationProps,
-  params: any
-) => {
+const getAnimateFunc: GetFuncType = ({ ctx, analyser, canvas }, params) => {
   const { setId, stop, bufferLength, dataArr, startMs } = AnimationBase.getBase(
     analyser,
     BAR_COUNT
