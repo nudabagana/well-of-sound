@@ -19,15 +19,16 @@ import { AudioFile } from "../types/FileTypes";
 import { randomInt } from "../utils/mathUtls";
 import { formatS, MS_IN_S } from "../utils/timeUtils";
 import { getUrlParam } from "../utils/urlUtils";
+import { Player } from "../types/PlayerTypes";
 
 const RANDOM_ID = "random";
 const CHANGE_INTERVAL = 30 * MS_IN_S;
 
 type Props = {
-  player?: HTMLAudioElement | null;
+  player?: Player | null;
   setAudioFiles: Dispatch<SetStateAction<AudioFile[]>>;
   setCurrFile: Dispatch<SetStateAction<AudioFile | undefined>>;
-  currFile: AudioFile | undefined;
+  currFile?: AudioFile | undefined;
   setAnimation: Dispatch<SetStateAction<Animation | undefined>>;
   animation?: Animation;
   audioFiles: AudioFile[];
@@ -54,33 +55,41 @@ const Controls: FC<Props> = ({
 
   useEffect(() => {
     if (player) {
-      player.volume = volume / 100;
+      player.setVolume(volume / 100);
     }
   }, [volume, player]);
 
   useEffect(() => {
     if (player) {
-      player.onpause = (e) => !player.ended && setIsPlaying(false);
-      player.onplay = () => setIsPlaying(true);
+      player.onPause = async () =>
+        !(await player.isEnded()) && setIsPlaying(false);
+      player.onPlay = () => setIsPlaying(true);
     }
   }, [player]);
 
   useEffect(() => {
+    let intervalId: number | undefined = undefined;
     if (player) {
-      player.ondurationchange = () => setDuration(Math.floor(player.duration));
-      player.ontimeupdate = () => setPlayTime(Math.floor(player.currentTime));
+      player.onDurationChange = async () =>
+        setDuration(Math.floor(await player.getDuration()));
+      intervalId = window.setInterval(async () => {
+        setPlayTime(Math.floor(await player.getCurrentTime()));
+      }, MS_IN_S);
     }
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [player]);
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
+    const onKeyDown = async (e: KeyboardEvent) => {
       if (player) {
         if (e.key === "ArrowLeft") {
-          player.currentTime -= 15;
+          player.setCurrentTime((await player.getCurrentTime()) - 15);
         } else if (e.key === "ArrowRight") {
-          player.currentTime += 15;
+          player.setCurrentTime((await player.getCurrentTime()) + 15);
         } else if (e.key === " ") {
-          player.paused ? player.play() : player.pause();
+          (await player.isPaused()) ? player.play() : player.pause();
         }
       }
     };
@@ -105,7 +114,7 @@ const Controls: FC<Props> = ({
 
   useEffect(() => {
     if (player) {
-      player.onended = () => {
+      player.onEnded = () => {
         let nextFile =
           shuffle || !currFile
             ? audioFiles[randomInt(audioFiles.length)]
@@ -116,7 +125,6 @@ const Controls: FC<Props> = ({
             audioFiles[audioFiles.indexOf(currFile) + 1] ??
             audioFiles[audioFiles.indexOf(currFile) - 1];
         }
-
         if (!nextFile) {
           setIsPlaying(false);
         } else {
@@ -150,6 +158,7 @@ const Controls: FC<Props> = ({
   };
 
   const onPlay = () => {
+    player?.play();
     if (!currFile) {
       setCurrFile(audioFiles[randomInt(audioFiles.length)]);
     } else {
@@ -215,7 +224,8 @@ const Controls: FC<Props> = ({
             style={{ width: "100%", margin: "10px" }}
             onChange={(e) => {
               if (player) {
-                player.currentTime = Number(e.target.value);
+                player.setCurrentTime(Number(e.target.value));
+                setPlayTime(Number(e.target.value));
               }
             }}
           />

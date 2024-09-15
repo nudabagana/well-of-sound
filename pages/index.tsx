@@ -12,6 +12,8 @@ import { AudioFile } from "../types/FileTypes";
 import { randomInt } from "../utils/mathUtls";
 import { v4 as uuid } from "uuid";
 import { getUrlParam } from "../utils/urlUtils";
+import { Player } from "../types/PlayerTypes";
+import { makeHTMLAudioElementPlayer } from "../players/HTMLAudioElement";
 
 const INITIAL_FILE: AudioFile = {
   id: uuid(),
@@ -26,12 +28,12 @@ const Home: NextPage = () => {
     const animation = Animations.find((a) => a.id === getUrlParam("animation"));
     return animation ?? Animations[randomInt(Animations.length)];
   });
-  const [player, setPlayer] = useState<HTMLAudioElement>();
+  const [player, setPlayer] = useState<Player>();
 
   useEffect(() => {
     if (currFile) {
       if (!player) {
-        setPlayer(new Audio());
+        setPlayer(makeHTMLAudioElementPlayer());
       } else {
         player.src = currFile.url;
         player.play();
@@ -59,7 +61,7 @@ const Home: NextPage = () => {
       </FlexDiv>
       <FlexDiv column flex1>
         <InfoBar songName={currFile?.name} />
-        <Visualizer player={player} animation={animation} />
+        <Visualizer player={player?.htmlAudioElement} animation={animation} />
       </FlexDiv>
     </MainContainer>
   );
