@@ -15,15 +15,7 @@ import { getUrlParam } from "../utils/urlUtils";
 import { Player } from "../types/PlayerTypes";
 import { makeHTMLAudioElementPlayer } from "../players/HTMLAudioElement";
 
-const INITIAL_FILE: AudioFile = {
-  id: uuid(),
-  name: "Hug a Turtle",
-  url: "/Parry_Gripp_Hug_A_Turtle.mp3",
-};
-
 const Home: NextPage = () => {
-  const [audioFiles, setAudioFiles] = useState<AudioFile[]>([INITIAL_FILE]);
-  const [currFile, setCurrFile] = useState<AudioFile>();
   const [animation, setAnimation] = useState<Animation | undefined>(() => {
     const animation = Animations.find((a) => a.id === getUrlParam("animation"));
     return animation ?? Animations[randomInt(Animations.length)];
@@ -31,36 +23,31 @@ const Home: NextPage = () => {
   const [player, setPlayer] = useState<Player>();
 
   useEffect(() => {
-    if (currFile) {
-      if (!player) {
-        setPlayer(makeHTMLAudioElementPlayer());
-      } else {
-        player.src = currFile.url;
-        player.play();
-      }
+    if (!player) {
+      setPlayer(makeHTMLAudioElementPlayer());
     }
-  }, [currFile, player]);
+    // if (currFile) {
+    //   if (!player) {
+    //     setPlayer(makeHTMLAudioElementPlayer());
+    //   } else {
+    //     player.src = currFile.url;
+    //     player.play();
+    //   }
+    // }
+  }, [player]);
 
   return (
     <MainContainer>
       <FlexDiv column>
         <Controls
-          currFile={currFile}
-          setAudioFiles={setAudioFiles}
-          setCurrFile={setCurrFile}
           player={player}
           setAnimation={setAnimation}
           animation={animation}
-          audioFiles={audioFiles}
         />
-        <TrackList
-          setCurrFile={setCurrFile}
-          audioFiles={audioFiles}
-          currFile={currFile}
-        />
+        <TrackList player={player} />
       </FlexDiv>
       <FlexDiv column flex1>
-        <InfoBar songName={currFile?.name} />
+        <InfoBar songName={undefined} />
         <Visualizer player={player?.htmlAudioElement} animation={animation} />
       </FlexDiv>
     </MainContainer>

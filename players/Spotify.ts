@@ -1,3 +1,4 @@
+import { AudioFile } from "../types/FileTypes";
 import { Player, VoidOrNull } from "../types/PlayerTypes";
 import {
   CBError,
@@ -5,10 +6,9 @@ import {
   WebPlaybackTrack,
 } from "../typings/spotify";
 import { MS_IN_S } from "../utils/timeUtils";
-import { wait } from "../utils/waitUtils";
 
 const SPOTIFY_TOKEN =
-  "BQAzq3hzxMcBu6R6SKigonc21aqjtFn9XoDA5AMdmbOeOCqhgRxsrOqXJ6ZbjoWDejw6nh4juIDUbStvCoz9XYky8Ag74aZM81KEVWuHOZf74gfA_RcQ9LUVyLQNJ6w5u9KWRWuOKPhOdV7iFA25Fc8pXqUif0a53nm6OyjiaVpaP_2M24VHEBWtvHY_gjEsDmieYpI6mEfe6w_6EA";
+  "BQCbA1YWBRWicxxiF_f-x0UusJmIQ41IBmgE_DivLceHQ3hNsflM1aksu52t_opEUA_EHOubioyr-_R2gilT-0z3p8tWaTClOvROCHQ4meK5yz5btZD7CPX-8ad9EAZ0bn4DZt-neY2bEZthuMOB6IltDAd5cBq-gbFN2MyPXPMPVamr4yiPn-CT39ETnSSISX31bLJDIsAyUhUBNA";
 
 export const makeSpotifyPlayer = (cb: (player: Player) => void) => {
   let player = new Spotify.Player({
@@ -22,11 +22,11 @@ export const makeSpotifyPlayer = (cb: (player: Player) => void) => {
 
   let duration = 0;
   let trackName: string = "";
-  let onEndedF: VoidOrNull = null;
   let onDurationChangeF: VoidOrNull = null;
   let onPlayF: VoidOrNull = null;
   let onPauseF: VoidOrNull = null;
   let onTrackChangeF: ((name: string) => void) | null = null;
+  let onTracksChangeF: VoidOrNull = null;
 
   player.addListener("player_state_changed", (state: WebPlaybackState) => {
     if (duration !== state.duration) {
@@ -68,6 +68,23 @@ export const makeSpotifyPlayer = (cb: (player: Player) => void) => {
       return state.paused;
     },
 
+    getTrack() { return null},
+    setTracks(tracks: AudioFile[]) {},
+    getTracks() {
+      return [] as AudioFile[];
+    },
+    playTrack(uuid: string) {},
+    async isShuffling() {
+      return true;
+    },
+    setShuffling(val: boolean) {},
+    get onTracksChange() {
+      return onTracksChangeF;
+    },
+    set onTracksChange(f: VoidOrNull) {
+      onTracksChangeF = f;
+    },
+
     play() {
       player.resume();
       onPlayF?.();
@@ -94,12 +111,6 @@ export const makeSpotifyPlayer = (cb: (player: Player) => void) => {
     },
     set onDurationChange(f: VoidOrNull) {
       onDurationChangeF = f;
-    },
-    get onEnded() {
-      return onEndedF;
-    },
-    set onEnded(f: VoidOrNull) {
-      onEndedF = f;
     },
     get onTrackChange() {
       return onTrackChangeF;

@@ -30,11 +30,8 @@ const Spootify: NextPage = () => {
       <MainContainer>
         <FlexDiv column>
           <Controls
-            setAudioFiles={() => {}}
-            setCurrFile={() => {}}
             player={player}
             setAnimation={() => {}}
-            audioFiles={[]}
           />
         </FlexDiv>
         <FlexDiv column flex1>

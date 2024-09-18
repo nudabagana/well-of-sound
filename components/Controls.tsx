@@ -15,34 +15,21 @@ import { FileInputWrapper } from "../styled/buttons/FileInputWrapper";
 import { Clrs } from "../styled/consts";
 import FlexDiv from "../styled/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
-import { AudioFile } from "../types/FileTypes";
+import { Player } from "../types/PlayerTypes";
 import { randomInt } from "../utils/mathUtls";
 import { formatS, MS_IN_S } from "../utils/timeUtils";
 import { getUrlParam } from "../utils/urlUtils";
-import { Player } from "../types/PlayerTypes";
 
 const RANDOM_ID = "random";
 const CHANGE_INTERVAL = 30 * MS_IN_S;
 
 type Props = {
   player?: Player | null;
-  setAudioFiles: Dispatch<SetStateAction<AudioFile[]>>;
-  setCurrFile: Dispatch<SetStateAction<AudioFile | undefined>>;
-  currFile?: AudioFile | undefined;
   setAnimation: Dispatch<SetStateAction<Animation | undefined>>;
   animation?: Animation;
-  audioFiles: AudioFile[];
 };
 
-const Controls: FC<Props> = ({
-  player,
-  setAudioFiles,
-  setCurrFile,
-  currFile,
-  setAnimation,
-  animation,
-  audioFiles,
-}) => {
+const Controls: FC<Props> = ({ player, setAnimation, animation }) => {
   const [duration, setDuration] = useState<number>();
   const [playTime, setPlayTime] = useState<number>(0);
   const [volume, setVolume] = useState(50);
@@ -112,57 +99,15 @@ const Controls: FC<Props> = ({
     };
   }, [randomAnimation, setAnimation, player]);
 
-  useEffect(() => {
-    if (player) {
-      player.onEnded = () => {
-        let nextFile =
-          shuffle || !currFile
-            ? audioFiles[randomInt(audioFiles.length)]
-            : audioFiles[audioFiles.indexOf(currFile) + 1];
-
-        if (nextFile === currFile) {
-          nextFile =
-            audioFiles[audioFiles.indexOf(currFile) + 1] ??
-            audioFiles[audioFiles.indexOf(currFile) - 1];
-        }
-        if (!nextFile) {
-          setIsPlaying(false);
-        } else {
-          setCurrFile(nextFile);
-        }
-      };
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player, audioFiles, shuffle, currFile]);
-
   const onFiles = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
+    if (files && player) {
       const filesArr = [...files].map((file) => ({
         name: file.name,
         url: URL.createObjectURL(file),
         id: uuid(),
       }));
-      setAudioFiles((existingFiles) =>
-        existingFiles ? [...existingFiles, ...filesArr] : filesArr
-      );
-      if (!currFile) {
-        setCurrFile(filesArr[Math.floor(Math.random() * filesArr.length)]);
-      }
-    }
-  };
-
-  const clearFiles = () => {
-    setAudioFiles([]);
-    setCurrFile(undefined);
-  };
-
-  const onPlay = () => {
-    player?.play();
-    if (!currFile) {
-      setCurrFile(audioFiles[randomInt(audioFiles.length)]);
-    } else {
-      player?.play();
+      player.setTracks([...player?.getTracks(), ...filesArr]);
     }
   };
 
@@ -205,14 +150,14 @@ const Controls: FC<Props> = ({
             fontSize: "18px",
             padding: "5px",
           }}
-          onClick={clearFiles}
+          onClick={() => player?.setTracks([])}
         >
           Clear files
         </Button>
       </div>
       <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
         <PlayPauseIcon
-          onClick={() => (isPlaying ? player?.pause() : onPlay())}
+          onClick={() => (isPlaying ? player?.pause() : player?.play())}
           active={isPlaying}
         />
         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>

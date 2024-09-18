@@ -1,15 +1,25 @@
-import { Dispatch, FC, SetStateAction } from "react";
+import { FC, useEffect, useState } from "react";
 import { Clrs } from "../styled/consts";
-import { AudioFile } from "../types/FileTypes";
+import { Player } from "../types/PlayerTypes";
 import stringUtils from "../utils/stringUtils";
 
 type Props = {
-  audioFiles?: AudioFile[];
-  currFile?: AudioFile;
-  setCurrFile: Dispatch<SetStateAction<AudioFile | undefined>>;
+  player?: Player | null | undefined;
 };
 
-const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
+const TrackList: FC<Props> = ({ player }) => {
+  const [currFile, setCurrFile] = useState(player?.getTrack());
+  const [audioFiles, setAudioFiles] = useState(player?.getTracks());
+
+  useEffect(() => {
+    if (player) {
+      setCurrFile(player.getTrack());
+      setAudioFiles(player.getTracks());
+      player.onTrackChange = () => setCurrFile(player.getTrack());
+      player.onTracksChange = () => setAudioFiles(player.getTracks());
+    }
+  }, [player]);
+
   return (
     <div
       style={{
@@ -24,10 +34,11 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
         return (
           <div
             key={id}
-            onDoubleClick={() => setCurrFile(fileObj)}
+            onDoubleClick={() => player?.playTrack(id)}
             style={{
               backgroundColor: id === currFile?.id ? Clrs.primary : undefined,
               padding: "2px 5px 2px 5px",
+              cursor: "pointer",
             }}
           >
             {i} - {stringUtils.trimExtension(name)}
