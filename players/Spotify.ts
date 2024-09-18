@@ -1,14 +1,14 @@
-import { AudioFile } from "../types/FileTypes";
-import { Player, VoidOrNull } from "../types/PlayerTypes";
+import { AudioTrack, Player, VoidOrNull } from "../types/PlayerTypes";
 import {
   CBError,
   WebPlaybackState,
   WebPlaybackTrack,
 } from "../typings/spotify";
 import { MS_IN_S } from "../utils/timeUtils";
+import { v4 as uuid } from "uuid";
 
 const SPOTIFY_TOKEN =
-  "BQCbA1YWBRWicxxiF_f-x0UusJmIQ41IBmgE_DivLceHQ3hNsflM1aksu52t_opEUA_EHOubioyr-_R2gilT-0z3p8tWaTClOvROCHQ4meK5yz5btZD7CPX-8ad9EAZ0bn4DZt-neY2bEZthuMOB6IltDAd5cBq-gbFN2MyPXPMPVamr4yiPn-CT39ETnSSISX31bLJDIsAyUhUBNA";
+  "BQB9zV1i2gsAhdCkydqfs52Bwkq2e9qnCnioOeBpkMA0hrhuwGSxhQYIB5PXRrruayvtVQXmNSOJiHaIHqeWonwL2j3PCPJV0FNuLI2HMZHexBezwoSeKGqBm9YeO1MRJ8LbDlAgUd_EAWPoSgju-LBBUdzahAfKiUxaFqzO14DkeYvHXzgWoujj5ArIKpn0bawczG_zVMX9eZ7yiA";
 
 export const makeSpotifyPlayer = (cb: (player: Player) => void) => {
   let player = new Spotify.Player({
@@ -22,32 +22,38 @@ export const makeSpotifyPlayer = (cb: (player: Player) => void) => {
 
   let duration = 0;
   let trackName: string = "";
+  let isPaused = true;
   let onDurationChangeF: VoidOrNull = null;
-  let onPlayF: VoidOrNull = null;
-  let onPauseF: VoidOrNull = null;
-  let onTrackChangeF: ((name: string) => void) | null = null;
+  let onPauseChangeF: ((isPaused: boolean) => void) | null = null;
+  let onTrackChangeF: ((track: AudioTrack | null) => void) | null = null;
   let onTracksChangeF: VoidOrNull = null;
 
   player.addListener("player_state_changed", (state: WebPlaybackState) => {
     if (duration !== state.duration) {
+      duration = state.duration;
       onDurationChangeF?.();
+    }
+    if (isPaused !== state.paused) {
+      isPaused = state.paused;
+      onPauseChangeF?.(isPaused);
     }
     const newTrackName = makeTrackName(state.track_window.current_track);
     if (trackName !== newTrackName) {
       trackName = newTrackName;
-      onTrackChangeF?.(trackName);
+      onTrackChangeF?.({
+        name: trackName,
+        id: state.track_window.current_track?.id ?? "",
+        url: "",
+      });
     }
   });
   setupErrLogging(player);
 
-  const playerToReturn = {
-    async getVolume() {
-      return player.getVolume();
+  const playerToReturn: Player = {
+    async getDuration() {
+      const state = await player.getCurrentState();
+      return Math.floor((state?.duration ?? 0) / MS_IN_S);
     },
-    async setVolume(value: number) {
-      player.setVolume(value);
-    },
-
     async getCurrentTime() {
       const state = await player.getCurrentState();
       return (state?.position ?? 0) / MS_IN_S;
@@ -55,67 +61,75 @@ export const makeSpotifyPlayer = (cb: (player: Player) => void) => {
     async setCurrentTime(value: number) {
       await player.seek(value * MS_IN_S);
     },
-    async getDuration() {
-      const state = await player.getCurrentState();
-      return Math.floor(state.duration / MS_IN_S);
+
+    async getVolume() {
+      return player.getVolume();
     },
-    async isEnded() {
-      const state = await player.getCurrentState();
-      return state.position === state.duration;
-    },
-    async isPaused() {
-      const state = await player.getCurrentState();
-      return state.paused;
+    async setVolume(value: number) {
+      player.setVolume(value);
     },
 
-    getTrack() { return null},
-    setTracks(tracks: AudioFile[]) {},
-    getTracks() {
-      return [] as AudioFile[];
-    },
-    playTrack(uuid: string) {},
     async isShuffling() {
+      const state = await player.getCurrentState();
+      return state?.shuffle ?? true;
+    },
+    setShuffling(val: boolean) {
+      // TODO: Add shuffle API Call
+    },
+
+    async isPaused() {
+      const state = await player.getCurrentState();
+      return state?.paused || true;
+    },
+
+    async getTrack() {
+      const state = await player.getCurrentState();
+      return {
+        name: makeTrackName(state?.track_window.current_track),
+        id: state?.track_window.current_track?.id ?? "",
+        url: "",
+      };
+    },
+    setTrack(uuid: string) {
+      // TODO: Add setTrack API Call
       return true;
     },
-    setShuffling(val: boolean) {},
-    get onTracksChange() {
-      return onTracksChangeF;
+    getTracks() {
+      return [];
     },
-    set onTracksChange(f: VoidOrNull) {
-      onTracksChangeF = f;
-    },
+    setTracks(tracks: AudioTrack[]) {},
 
     play() {
       player.resume();
-      onPlayF?.();
     },
     pause() {
       player.pause();
-      onPauseF?.();
     },
 
-    get onPause() {
-      return onPauseF;
-    },
-    set onPause(f: VoidOrNull) {
-      onPauseF = f;
-    },
-    get onPlay() {
-      return onPlayF;
-    },
-    set onPlay(f: VoidOrNull) {
-      onPlayF = f;
-    },
     get onDurationChange() {
       return onDurationChangeF;
     },
     set onDurationChange(f: VoidOrNull) {
       onDurationChangeF = f;
     },
+
+    get onPauseChange() {
+      return onPauseChangeF;
+    },
+    set onPauseChange(f: ((isPaused: boolean) => void) | null) {
+      onPauseChangeF = f;
+    },
+
+    get onTracksChange() {
+      return onTracksChangeF;
+    },
+    set onTracksChange(f: VoidOrNull) {
+      onTracksChangeF = f;
+    },
     get onTrackChange() {
       return onTrackChangeF;
     },
-    set onTrackChange(f: ((name: string) => void) | null) {
+    set onTrackChange(f: ((track: AudioTrack | null) => void) | null) {
       onTrackChangeF = f;
     },
   };

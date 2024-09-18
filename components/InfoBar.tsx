@@ -1,10 +1,11 @@
-import { FC, useState, useEffect } from "react";
+import { FC } from "react";
+import { usePlayerContext } from "../context/playerContext";
 import { Clrs } from "../styled/consts";
 import stringUtils from "../utils/stringUtils";
 
-type Props = { songName?: string };
-
-const InfoBar: FC<Props> = ({ songName }) => {
+const InfoBar: FC = () => {
+  const { currTrack } = usePlayerContext();
+  const songName = currTrack?.name;
   return (
     <div
       style={{

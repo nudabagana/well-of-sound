@@ -15,7 +15,7 @@ declare global {
       pause: () => void;
       resume: () => void;
       setVolume: (num: number) => void;
-      getCurrentState: () => Promise<WebPlaybackState>;
+      getCurrentState: () => Promise<WebPlaybackState?>;
       seek: (position_ms: number) => Promise<void>;
       getVolume: () => Promise<number>;
     }

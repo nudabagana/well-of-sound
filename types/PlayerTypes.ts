@@ -1,31 +1,30 @@
-import { AudioFile } from "./FileTypes";
-
+export type AudioTrack = { id: string; url: string; name: string };
 export type VoidOrNull = (() => void) | null;
 export type Player = {
-  src?: string;
   htmlAudioElement?: HTMLAudioElement;
 
   getDuration: () => Promise<number>;
-  getVolume: () => Promise<number>;
   getCurrentTime: () => Promise<number>;
-  isPaused: () => Promise<boolean>;
-  isEnded: () => Promise<boolean>;
-  isShuffling: () => Promise<boolean>;
-
-  setShuffling: (val: boolean) => void;
-  setVolume: (val: number) => Promise<void>;
   setCurrentTime: (time: number) => void;
+
+  getVolume: () => Promise<number>;
+  setVolume: (val: number) => Promise<void>;
+
+  isShuffling: () => Promise<boolean>;
+  setShuffling: (val: boolean) => void;
+
+  isPaused: () => Promise<boolean>;
+
+  getTrack: () => Promise<AudioTrack | null>;
+  setTrack: (uuid: string) => boolean;
+  getTracks: () => AudioTrack[];
+  setTracks: (tracks: AudioTrack[]) => void;
+
   play: () => void;
   pause: () => void;
-  playTrack: (uuid: string) => void;
 
-  getTrack: () => AudioFile | null;
-  setTracks: (tracks: AudioFile[]) => void;
-  getTracks: () => AudioFile[];
-
-  onTracksChange: VoidOrNull;
-  onPause: VoidOrNull;
-  onPlay: VoidOrNull;
   onDurationChange: VoidOrNull;
-  onTrackChange: ((name: string) => void) | null;
+  onPauseChange: ((isPaused: boolean) => void) | null;
+  onTracksChange: VoidOrNull;
+  onTrackChange: ((track: AudioTrack | null) => void) | null;
 };

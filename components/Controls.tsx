@@ -8,6 +8,7 @@ import {
 } from "react";
 import { v4 as uuid } from "uuid";
 import { Animations } from "../animations/AnimationList";
+import { usePlayerContext } from "../context/playerContext";
 import PlayPauseIcon from "../icons/PlayPauseIcon";
 import ShuffleIcon from "../icons/ShuffleIcon";
 import Button from "../styled/buttons/Button";
@@ -15,7 +16,6 @@ import { FileInputWrapper } from "../styled/buttons/FileInputWrapper";
 import { Clrs } from "../styled/consts";
 import FlexDiv from "../styled/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
-import { Player } from "../types/PlayerTypes";
 import { randomInt } from "../utils/mathUtls";
 import { formatS, MS_IN_S } from "../utils/timeUtils";
 import { getUrlParam } from "../utils/urlUtils";
@@ -24,16 +24,15 @@ const RANDOM_ID = "random";
 const CHANGE_INTERVAL = 30 * MS_IN_S;
 
 type Props = {
-  player?: Player | null;
   setAnimation: Dispatch<SetStateAction<Animation | undefined>>;
   animation?: Animation;
 };
 
-const Controls: FC<Props> = ({ player, setAnimation, animation }) => {
+const Controls: FC<Props> = ({ setAnimation, animation }) => {
+  const { player, isPaused } = usePlayerContext();
   const [duration, setDuration] = useState<number>();
   const [playTime, setPlayTime] = useState<number>(0);
   const [volume, setVolume] = useState(50);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(true);
   const [randomAnimation, setRandomAnimation] = useState(() => {
     const animation = Animations.find((a) => a.id === getUrlParam("animation"));
@@ -48,11 +47,9 @@ const Controls: FC<Props> = ({ player, setAnimation, animation }) => {
 
   useEffect(() => {
     if (player) {
-      player.onPause = async () =>
-        !(await player.isEnded()) && setIsPlaying(false);
-      player.onPlay = () => setIsPlaying(true);
+      player.setShuffling(shuffle);
     }
-  }, [player]);
+  }, [shuffle, player]);
 
   useEffect(() => {
     let intervalId: number | undefined = undefined;
@@ -72,8 +69,10 @@ const Controls: FC<Props> = ({ player, setAnimation, animation }) => {
     const onKeyDown = async (e: KeyboardEvent) => {
       if (player) {
         if (e.key === "ArrowLeft") {
+          e.preventDefault()
           player.setCurrentTime((await player.getCurrentTime()) - 15);
         } else if (e.key === "ArrowRight") {
+          e.preventDefault()
           player.setCurrentTime((await player.getCurrentTime()) + 15);
         } else if (e.key === " ") {
           (await player.isPaused()) ? player.play() : player.pause();
@@ -157,8 +156,8 @@ const Controls: FC<Props> = ({ player, setAnimation, animation }) => {
       </div>
       <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
         <PlayPauseIcon
-          onClick={() => (isPlaying ? player?.pause() : player?.play())}
-          active={isPlaying}
+          onClick={() => (isPaused ? player?.play() : player?.pause())}
+          active={!isPaused}
         />
         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
           <input

@@ -1,47 +1,37 @@
-import { AudioFile } from "../types/FileTypes";
-import { Player, VoidOrNull } from "../types/PlayerTypes";
+import { AudioTrack, Player, VoidOrNull } from "../types/PlayerTypes";
 import { randomInt } from "../utils/mathUtls";
 import { v4 as uuid } from "uuid";
 
-const INITIAL_FILE: AudioFile = {
+const INITIAL_FILE: AudioTrack = {
   id: uuid(),
   name: "Hug a Turtle",
   url: "/Parry_Gripp_Hug_A_Turtle.mp3",
 };
 
-export const makeHTMLAudioElementPlayer = (shuffle: boolean = true): Player => {
+type MakeHTMLAudioProps = { shuffle?: boolean };
+export const makeHTMLAudioElementPlayer = (
+  defaults?: MakeHTMLAudioProps
+): Player => {
   let audio = new Audio();
 
-  let audioFiles: AudioFile[] = [INITIAL_FILE];
-  let shuffling = shuffle;
-  let currFile: AudioFile | null = null;
+  let shuffle = defaults?.shuffle !== undefined ? defaults.shuffle : true;
+  let audioTracks: AudioTrack[] = [INITIAL_FILE];
+  let currTrack: AudioTrack | null = null;
 
   let onDurationChangeF: VoidOrNull = null;
-  let onPlayF: VoidOrNull = null;
-  let onPauseF: VoidOrNull = null;
-  let onTrackChangeF: ((name: string) => void) | null = null;
+  let onPauseChangeF: ((isPaused: boolean) => void) | null = null;
+  let onTrackChangeF: ((track: AudioTrack | null) => void) | null = null;
   let onTracksChangeF: VoidOrNull = null;
 
-  let switchSong = () => {
-    let nextFile =
-      shuffle || !currFile
-        ? audioFiles[randomInt(audioFiles.length)]
-        : audioFiles[currFile ? audioFiles.indexOf(currFile) + 1 : 0];
-
-    if (nextFile === currFile) {
-      nextFile =
-        audioFiles[audioFiles.indexOf(currFile) + 1] ??
-        audioFiles[audioFiles.indexOf(currFile) - 1];
-    }
-    if (nextFile) {
-      currFile = nextFile;
-      audio.src = currFile.url;
+  audio.onended = () => {
+    currTrack = selectNextTrack(shuffle, audioTracks, currTrack);
+    onTrackChangeF?.(currTrack);
+    if (currTrack) {
+      audio.src = currTrack.url;
       audio.play();
-      onTrackChangeF?.(currFile.name);
     }
   };
-
-  audio.onended = switchSong;
+  audio.onplay = () => onPauseChangeF?.(audio.paused);
 
   return {
     htmlAudioElement: audio,
@@ -60,28 +50,24 @@ export const makeHTMLAudioElementPlayer = (shuffle: boolean = true): Player => {
     async getDuration() {
       return audio.duration;
     },
-    async isEnded() {
-      return audio.ended;
-    },
     async isPaused() {
       return audio.paused;
     },
-    get src() {
-      return audio.src;
-    },
-    set src(value: string) {
-      audio.src = value;
-    },
     async isShuffling() {
-      return shuffling;
+      return shuffle;
     },
     setShuffling(val: boolean) {
-      shuffling = val;
+      shuffle = val;
     },
 
     play() {
-      if (!currFile) {
-        switchSong();
+      if (!currTrack) {
+        currTrack = selectNextTrack(shuffle, audioTracks, currTrack);
+        onTrackChangeF?.(currTrack);
+        if (currTrack) {
+          audio.src = currTrack.url;
+          audio.play();
+        }
       } else {
         audio.play();
       }
@@ -90,40 +76,33 @@ export const makeHTMLAudioElementPlayer = (shuffle: boolean = true): Player => {
       audio.pause();
     },
 
-    getTrack() {
-      return currFile;
+    async getTrack() {
+      return currTrack;
     },
-    setTracks(tracks: AudioFile[]) {
-      audioFiles = tracks;
+    setTracks(tracks: AudioTrack[]) {
+      audioTracks = tracks;
       onTracksChangeF?.();
     },
     getTracks() {
-      return audioFiles;
+      return audioTracks;
     },
-    playTrack(uuid: string) {
-      let track = audioFiles.find(({ id }) => id == uuid);
+    setTrack(uuid: string) {
+      let track = audioTracks.find(({ id }) => id == uuid);
       if (track) {
-        currFile = track;
-        audio.src = currFile.url;
-        audio.play();
-        onTrackChangeF?.(currFile.name);
+        currTrack = track;
+        onTrackChangeF?.(currTrack);
+        audio.src = currTrack.url;
+        return true;
       }
+      return false;
     },
 
-    get onPause() {
-      return onPauseF;
+    get onPauseChange() {
+      return onPauseChangeF;
     },
-    set onPause(f: VoidOrNull) {
-      onPauseF = f;
-      audio.onpause = () => f?.();
-    },
-
-    get onPlay() {
-      return onPlayF;
-    },
-    set onPlay(f: VoidOrNull) {
-      onPlayF = f;
-      audio.onplay = () => f?.();
+    set onPauseChange(f: ((isPaused: boolean) => void) | null) {
+      onPauseChangeF = f;
+      audio.onpause = () => f?.(audio.paused);
     },
 
     get onDurationChange() {
@@ -137,7 +116,7 @@ export const makeHTMLAudioElementPlayer = (shuffle: boolean = true): Player => {
     get onTrackChange() {
       return onTrackChangeF;
     },
-    set onTrackChange(f: ((name: string) => void) | null) {
+    set onTrackChange(f: ((track: AudioTrack | null) => void) | null) {
       onTrackChangeF = f;
     },
 
@@ -148,4 +127,25 @@ export const makeHTMLAudioElementPlayer = (shuffle: boolean = true): Player => {
       onTracksChangeF = f;
     },
   };
+};
+
+let selectNextTrack = (
+  shuffle: boolean,
+  audioTracks: AudioTrack[],
+  currTrack: AudioTrack | null
+) => {
+  let nextTrack: AudioTrack | null =
+    shuffle || !currTrack
+      ? audioTracks[randomInt(audioTracks.length)]
+      : audioTracks[audioTracks.indexOf(currTrack) + 1];
+
+  if (nextTrack === currTrack) {
+    nextTrack =
+      audioTracks[audioTracks.indexOf(currTrack) + 1] ??
+      audioTracks[audioTracks.indexOf(currTrack) - 1];
+  }
+  if (nextTrack) {
+    return nextTrack;
+  }
+  return null;
 };

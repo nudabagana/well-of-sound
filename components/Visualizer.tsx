@@ -2,10 +2,12 @@ import { FC, useEffect, useRef, useState } from "react";
 import ResizeIcon from "../icons/ResizeIcon";
 import { Clrs } from "../styled/consts";
 import { Analyser, Animation } from "../types/AnimationTypes";
+import { usePlayerContext } from "../context/playerContext";
 
-type Props = { player?: HTMLAudioElement | null; animation?: Animation };
+type Props = { animation?: Animation };
 
-const Visualizer: FC<Props> = ({ player, animation }) => {
+const Visualizer: FC<Props> = ({ animation }) => {
+  const { player } = usePlayerContext();
   const [analyser, setAnalyser] = useState<Analyser>();
   const [fullScreen, setFullScreen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,9 +33,11 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
   }, []);
 
   useEffect(() => {
-    if (player) {
+    if (player?.htmlAudioElement) {
       const audioCtx = new AudioContext();
-      const audioSource = audioCtx.createMediaElementSource(player);
+      const audioSource = audioCtx.createMediaElementSource(
+        player.htmlAudioElement
+      );
       const analyser = audioCtx.createAnalyser();
       audioSource.connect(analyser);
       analyser.connect(audioCtx.destination);

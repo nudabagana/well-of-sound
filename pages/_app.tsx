@@ -5,6 +5,7 @@ import FlexDiv from "../styled/FlexDiv";
 import { Clrs } from "../styled/consts";
 import { GlobalStyle } from "../styled/globals";
 import { ThemeProvider } from "styled-components";
+import { PlayerContextProvider } from "../context/playerContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -18,14 +19,16 @@ function MyApp({ Component, pageProps }: AppProps) {
       }}
     >
       <ThemeProvider theme={{ clr: Clrs }}>
-        <Head>
-          <title>Well of Sound</title>
-          <meta name="description" content="Music visualizer." />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <Header />
-        <Component {...pageProps} />
-        <GlobalStyle />
+        <PlayerContextProvider>
+          <Head>
+            <title>Well of Sound</title>
+            <meta name="description" content="Music visualizer." />
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
+          <Header />
+          <Component {...pageProps} />
+          <GlobalStyle />
+        </PlayerContextProvider>
       </ThemeProvider>
     </FlexDiv>
   );

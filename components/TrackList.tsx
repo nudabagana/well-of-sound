@@ -1,24 +1,10 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
+import { usePlayerContext } from "../context/playerContext";
 import { Clrs } from "../styled/consts";
-import { Player } from "../types/PlayerTypes";
 import stringUtils from "../utils/stringUtils";
 
-type Props = {
-  player?: Player | null | undefined;
-};
-
-const TrackList: FC<Props> = ({ player }) => {
-  const [currFile, setCurrFile] = useState(player?.getTrack());
-  const [audioFiles, setAudioFiles] = useState(player?.getTracks());
-
-  useEffect(() => {
-    if (player) {
-      setCurrFile(player.getTrack());
-      setAudioFiles(player.getTracks());
-      player.onTrackChange = () => setCurrFile(player.getTrack());
-      player.onTracksChange = () => setAudioFiles(player.getTracks());
-    }
-  }, [player]);
+const TrackList: FC = () => {
+  const { tracks, currTrack, player } = usePlayerContext();
 
   return (
     <div
@@ -29,14 +15,14 @@ const TrackList: FC<Props> = ({ player }) => {
         border: `solid 3px ${Clrs.primary}`,
       }}
     >
-      {audioFiles?.map((fileObj, i) => {
+      {tracks?.map((fileObj, i) => {
         const { name, id } = fileObj;
         return (
           <div
             key={id}
-            onDoubleClick={() => player?.playTrack(id)}
+            onDoubleClick={() => player?.setTrack(id) && player?.play()}
             style={{
-              backgroundColor: id === currFile?.id ? Clrs.primary : undefined,
+              backgroundColor: id === currTrack?.id ? Clrs.primary : undefined,
               padding: "2px 5px 2px 5px",
               cursor: "pointer",
             }}
