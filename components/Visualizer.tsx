@@ -3,9 +3,21 @@ import ResizeIcon from "../icons/ResizeIcon";
 import { Clrs } from "../styled/consts";
 import { Analyser, Animation } from "../types/AnimationTypes";
 
-type Props = { player?: HTMLAudioElement | null; animation?: Animation };
+type Props = {
+  player?: HTMLAudioElement | null;
+  mediaStream?: MediaStream | null;
+  mediaStreamGain?: number;
+  onLevel?: (level: number) => void;
+  animation?: Animation;
+};
 
-const Visualizer: FC<Props> = ({ player, animation }) => {
+const Visualizer: FC<Props> = ({
+  player,
+  mediaStream,
+  mediaStreamGain = 1,
+  onLevel,
+  animation,
+}) => {
   const [analyser, setAnalyser] = useState<Analyser>();
   const [fullScreen, setFullScreen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,15 +43,46 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
   }, []);
 
   useEffect(() => {
+    if (mediaStream) {
+      const audioCtx = new AudioContext();
+      const audioSource = audioCtx.createMediaStreamSource(mediaStream);
+      const gain = audioCtx.createGain();
+      const analyser = audioCtx.createAnalyser();
+      analyser.smoothingTimeConstant = 0.75;
+      analyser.minDecibels = -90;
+      analyser.maxDecibels = -20;
+      gain.gain.value = mediaStreamGain;
+      audioSource.connect(gain);
+      gain.connect(analyser);
+      audioCtx.resume();
+      setAnalyser(analyser);
+
+      return () => {
+        audioSource.disconnect();
+        gain.disconnect();
+        analyser.disconnect();
+        audioCtx.close();
+        setAnalyser(undefined);
+      };
+    }
+
     if (player) {
       const audioCtx = new AudioContext();
       const audioSource = audioCtx.createMediaElementSource(player);
       const analyser = audioCtx.createAnalyser();
       audioSource.connect(analyser);
       analyser.connect(audioCtx.destination);
+      audioCtx.resume();
       setAnalyser(analyser);
+
+      return () => {
+        audioSource.disconnect();
+        analyser.disconnect();
+        audioCtx.close();
+        setAnalyser(undefined);
+      };
     }
-  }, [player]);
+  }, [player, mediaStream, mediaStreamGain]);
 
   useEffect(() => {
     if (canvas && analyser && animation) {
@@ -57,6 +100,29 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
       return stop;
     }
   }, [canvas, analyser, animation]);
+
+  useEffect(() => {
+    if (!analyser || !onLevel) {
+      return;
+    }
+    const dataArr = new Uint8Array(analyser.fftSize);
+    const intervalId = window.setInterval(() => {
+      if (!analyser.getByteTimeDomainData) {
+        onLevel(0);
+        return;
+      }
+      analyser.getByteTimeDomainData(dataArr);
+      let sumSquares = 0;
+      for (const value of dataArr) {
+        const centered = (value - 128) / 128;
+        sumSquares += centered * centered;
+      }
+      const rms = Math.sqrt(sumSquares / dataArr.length);
+      onLevel(Math.min(100, Math.round(rms * 220)));
+    }, 100);
+
+    return () => window.clearInterval(intervalId);
+  }, [analyser, onLevel]);
 
   return (
     <div

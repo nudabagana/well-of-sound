@@ -2,6 +2,7 @@ import { CSSProperties } from "react";
 
 export type Analyser = {
   getByteFrequencyData: (array: Uint8Array) => void;
+  getByteTimeDomainData?: (array: Uint8Array) => void;
   fftSize: number;
   frequencyBinCount: number;
 };

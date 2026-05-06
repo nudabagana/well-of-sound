@@ -1,10 +1,11 @@
 import type { NextPage } from "next";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Animations } from "../animations/AnimationList";
 import Controls from "../components/Controls";
 import InfoBar from "../components/InfoBar";
 import TrackList from "../components/TrackList";
 import Visualizer from "../components/Visualizer";
+import Button from "../styled/buttons/Button";
 import { MainContainer } from "../styled/containers/MainContainer";
 import FlexDiv from "../styled/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
@@ -27,6 +28,12 @@ const Home: NextPage = () => {
     return animation ?? Animations[randomInt(Animations.length)];
   });
   const [player, setPlayer] = useState<HTMLAudioElement>();
+  const [captureStream, setCaptureStream] = useState<MediaStream | null>(null);
+  const [captureStatus, setCaptureStatus] = useState<string>();
+  const [captureMode, setCaptureMode] = useState<"share" | "mic" | null>(null);
+  const [inputLevel, setInputLevel] = useState(0);
+  const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedMicId, setSelectedMicId] = useState<string>("");
 
   useEffect(() => {
     if (currFile) {
@@ -39,9 +46,160 @@ const Home: NextPage = () => {
     }
   }, [currFile, player]);
 
+  const refreshMicDevices = useCallback(async () => {
+    if (!navigator.mediaDevices?.enumerateDevices) {
+      return;
+    }
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioInputs = devices.filter((device) => device.kind === "audioinput");
+    setMicDevices(audioInputs);
+    if (!selectedMicId && audioInputs[0]?.deviceId) {
+      setSelectedMicId(audioInputs[0].deviceId);
+    }
+  }, [selectedMicId]);
+
+  useEffect(() => {
+    refreshMicDevices();
+  }, [refreshMicDevices]);
+
+  const stopCapture = () => {
+    captureStream?.getTracks().forEach((track) => track.stop());
+    setCaptureStream(null);
+    setCaptureMode(null);
+    setInputLevel(0);
+    setCaptureStatus(undefined);
+  };
+
+  const startCapture = async () => {
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      setCaptureStatus("Display audio capture is not supported here.");
+      return;
+    }
+
+    try {
+      stopCapture();
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true,
+        systemAudio: "include",
+        preferCurrentTab: false,
+      } as any);
+
+      if (stream.getAudioTracks().length === 0) {
+        stream.getTracks().forEach((track) => track.stop());
+        setCaptureStatus("No audio shared. Retry and enable Share audio.");
+        return;
+      }
+
+      stream.getTracks().forEach((track) => {
+        track.addEventListener(
+          "ended",
+          () => {
+            setCaptureStream(null);
+            setCaptureStatus(undefined);
+          },
+          { once: true }
+        );
+      });
+
+      setCaptureStream(stream);
+      setCaptureMode("share");
+      setCaptureStatus("Using shared audio for visualizer.");
+    } catch (error) {
+      setCaptureStatus("Capture cancelled or failed.");
+    }
+  };
+
+  const startMicCapture = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCaptureStatus("Microphone capture is not supported here.");
+      return;
+    }
+
+    try {
+      stopCapture();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: selectedMicId ? { exact: selectedMicId } : undefined,
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+        video: false,
+      });
+
+      refreshMicDevices();
+      stream.getTracks().forEach((track) => {
+        track.addEventListener(
+          "ended",
+          () => {
+            setCaptureStream(null);
+            setCaptureMode(null);
+            setCaptureStatus(undefined);
+          },
+          { once: true }
+        );
+      });
+
+      setCaptureStream(stream);
+      setCaptureMode("mic");
+      setCaptureStatus("Using microphone for visualizer.");
+    } catch (error) {
+      setCaptureStatus("Microphone capture cancelled or failed.");
+    }
+  };
+
   return (
     <MainContainer>
       <FlexDiv column>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            marginBottom: "10px",
+          }}
+        >
+          <Button onClick={captureStream ? stopCapture : startCapture}>
+            {captureStream ? "Stop capture" : "Capture shared audio"}
+          </Button>
+          <Button
+            onClick={
+              captureStream && captureMode === "mic"
+                ? stopCapture
+                : startMicCapture
+            }
+          >
+            {captureStream && captureMode === "mic"
+              ? "Stop mic"
+              : "Capture microphone"}
+          </Button>
+          {captureStream && <span>Input: {inputLevel}%</span>}
+          {captureStatus && <span>{captureStatus}</span>}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            marginBottom: "10px",
+          }}
+        >
+          <span>Mic</span>
+          <select
+            value={selectedMicId}
+            onChange={(e) => setSelectedMicId(e.target.value)}
+            onFocus={refreshMicDevices}
+            style={{ maxWidth: "280px" }}
+          >
+            {micDevices.length === 0 && <option value="">Default</option>}
+            {micDevices.map((device, i) => (
+              <option value={device.deviceId} key={device.deviceId}>
+                {device.label || `Microphone ${i + 1}`}
+              </option>
+            ))}
+          </select>
+        </div>
         <Controls
           currFile={currFile}
           setAudioFiles={setAudioFiles}
@@ -58,8 +216,22 @@ const Home: NextPage = () => {
         />
       </FlexDiv>
       <FlexDiv column flex1>
-        <InfoBar songName={currFile?.name} />
-        <Visualizer player={player} animation={animation} />
+        <InfoBar
+          songName={
+            captureMode === "mic"
+              ? "Microphone"
+              : captureMode === "share"
+              ? "Shared audio"
+              : currFile?.name
+          }
+        />
+        <Visualizer
+          player={player}
+          mediaStream={captureStream}
+          mediaStreamGain={captureMode === "mic" ? 2 : 1}
+          onLevel={setInputLevel}
+          animation={animation}
+        />
       </FlexDiv>
     </MainContainer>
   );

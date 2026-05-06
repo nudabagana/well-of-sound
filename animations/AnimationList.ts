@@ -2,6 +2,7 @@ import { Animation } from "../types/AnimationTypes";
 import BarAnimation from "./BarAnimation";
 import CircleAnimation from "./CircleAnimation";
 import FuncAnimation from "./FuncAnimation";
+import MilkdropRawAnimation from "./MilkdropRawAnimation";
 import NewAnimation from "./NewAnimation";
 import ThreeFanAnimation from "./ThreeFanAnimation";
 import TwoFanAnimation from "./TwoFanAnimation";
@@ -36,6 +37,12 @@ export const Animations: Animation[] = [
     name: "Dark Neon",
     getFunc: ThreeFanAnimation.getAnimateFunc,
     canvasStyle: ThreeFanAnimation.cssStyle,
+  },
+  {
+    id: "milkdrop_raw",
+    name: "Milkdrop Raw",
+    getFunc: MilkdropRawAnimation.getAnimateFunc,
+    canvasStyle: MilkdropRawAnimation.cssStyle,
   },
   // {
   //   id: "New",
