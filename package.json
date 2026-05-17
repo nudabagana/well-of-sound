@@ -12,14 +12,12 @@
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "styled-components": "^6.4.1",
-    "uuid": "^14.0.0"
+    "styled-components": "^6.4.1"
   },
   "devDependencies": {
     "@types/node": "18.7.8",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@types/uuid": "^11.0.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.6",
     "typescript": "^6.0.3"

@@ -6,7 +6,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { v4 as uuid } from "uuid";
 import { Animations } from "../animations/AnimationList";
 import PlayPauseIcon from "../icons/PlayPauseIcon";
 import ShuffleIcon from "../icons/ShuffleIcon";
@@ -133,7 +132,7 @@ const Controls: FC<Props> = ({
       const filesArr = [...files].map((file) => ({
         name: file.name,
         url: URL.createObjectURL(file),
-        id: uuid(),
+        id: crypto.randomUUID(),
       }));
       setAudioFiles((existingFiles) =>
         existingFiles ? [...existingFiles, ...filesArr] : filesArr
