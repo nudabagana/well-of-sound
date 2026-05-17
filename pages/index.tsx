@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Animations } from "../animations/AnimationList";
 import Controls from "../components/Controls";
 import InfoBar from "../components/InfoBar";
@@ -10,23 +10,33 @@ import FlexDiv from "../styled/FlexDiv";
 import { Animation } from "../types/AnimationTypes";
 import { AudioFile } from "../types/FileTypes";
 import { randomInt } from "../utils/mathUtls";
-import { v4 as uuid } from "uuid";
 import { getUrlParam } from "../utils/urlUtils";
 
 const INITIAL_FILE: AudioFile = {
-  id: uuid(),
+  id: "hug-a-turtle",
   name: "Hug a Turtle",
   url: "/Parry_Gripp_Hug_A_Turtle.mp3",
 };
 
+const DEFAULT_ANIMATION = Animations[0];
+
 const Home: NextPage = () => {
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([INITIAL_FILE]);
   const [currFile, setCurrFile] = useState<AudioFile>();
-  const [animation, setAnimation] = useState<Animation | undefined>(() => {
-    const animation = Animations.find((a) => a.id === getUrlParam("animation"));
-    return animation ?? Animations[randomInt(Animations.length)];
-  });
+  const [animation, setAnimation] = useState<Animation | undefined>(
+    DEFAULT_ANIMATION
+  );
   const [player, setPlayer] = useState<HTMLAudioElement>();
+
+  useEffect(() => {
+    const animationFromUrl = Animations.find(
+      (item) => item.id === getUrlParam("animation")
+    );
+
+    setAnimation(
+      animationFromUrl ?? Animations[randomInt(Animations.length)] ?? DEFAULT_ANIMATION
+    );
+  }, []);
 
   useEffect(() => {
     if (currFile) {
@@ -41,7 +51,7 @@ const Home: NextPage = () => {
 
   return (
     <MainContainer>
-      <FlexDiv column>
+      <FlexDiv $column>
         <Controls
           currFile={currFile}
           setAudioFiles={setAudioFiles}
@@ -57,7 +67,7 @@ const Home: NextPage = () => {
           currFile={currFile}
         />
       </FlexDiv>
-      <FlexDiv column flex1>
+      <FlexDiv $column $flex1>
         <InfoBar songName={currFile?.name} />
         <Visualizer player={player} animation={animation} />
       </FlexDiv>

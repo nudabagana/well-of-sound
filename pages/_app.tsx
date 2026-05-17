@@ -9,7 +9,7 @@ import { ThemeProvider } from "styled-components";
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <FlexDiv
-      column
+      $column
       style={{
         height: "100%",
         minHeight: "700px",

@@ -13,8 +13,15 @@ const Header: FC = () => {
         justifyContent: "center",
       }}
     >
-      <Link href="/">
-        <h1 style={{ margin: "0px", cursor: "pointer" }}>Well of Sound</h1>
+      <Link
+        href="/"
+        style={{
+          color: Clrs.text,
+          cursor: "pointer",
+          textDecoration: "none",
+        }}
+      >
+        <h1 style={{ margin: "0px" }}>Well of Sound</h1>
       </Link>
     </div>
   );
