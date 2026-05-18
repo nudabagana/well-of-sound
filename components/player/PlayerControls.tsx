@@ -6,18 +6,19 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Animations } from "../animations/AnimationList";
-import PlayPauseIcon from "../icons/PlayPauseIcon";
-import ShuffleIcon from "../icons/ShuffleIcon";
-import Button from "../styled/buttons/Button";
-import { FileInputWrapper } from "../styled/buttons/FileInputWrapper";
-import { Clrs } from "../styled/consts";
-import FlexDiv from "../styled/FlexDiv";
-import { Animation } from "../types/AnimationTypes";
-import { AudioFile } from "../types/FileTypes";
-import { randomInt } from "../utils/mathUtls";
-import { formatS, MS_IN_S } from "../utils/timeUtils";
-import { getUrlParam } from "../utils/urlUtils";
+import { Animations } from "../../animations/AnimationList";
+import PlayPauseIcon from "../../icons/PlayPauseIcon";
+import ShuffleIcon from "../../icons/ShuffleIcon";
+import Button from "../../styled/buttons/Button";
+import { FileInputWrapper } from "../../styled/buttons/FileInputWrapper";
+import { Clrs } from "../../styled/consts";
+import FlexDiv from "../../styled/FlexDiv";
+import Dropdown from "../../styled/inputs/Dropdown";
+import { Animation } from "../../types/AnimationTypes";
+import { AudioFile } from "../../types/FileTypes";
+import { randomInt } from "../../utils/mathUtls";
+import { formatS, MS_IN_S } from "../../utils/timeUtils";
+import { getUrlParam } from "../../utils/urlUtils";
 
 const RANDOM_ID = "random";
 const CHANGE_INTERVAL = 30 * MS_IN_S;
@@ -32,7 +33,7 @@ type Props = {
   audioFiles: AudioFile[];
 };
 
-const Controls: FC<Props> = ({
+const PlayerControls: FC<Props> = ({
   player,
   setAudioFiles,
   setCurrFile,
@@ -135,7 +136,7 @@ const Controls: FC<Props> = ({
         id: crypto.randomUUID(),
       }));
       setAudioFiles((existingFiles) =>
-        existingFiles ? [...existingFiles, ...filesArr] : filesArr
+        existingFiles ? [...existingFiles, ...filesArr] : filesArr,
       );
       if (!currFile) {
         setCurrFile(filesArr[Math.floor(Math.random() * filesArr.length)]);
@@ -244,7 +245,7 @@ const Controls: FC<Props> = ({
         </div>
         <div>
           <p style={{ margin: "0px 0px 5px 0" }}>Visualizer</p>
-          <select
+          <Dropdown
             style={{ width: "100px", fontSize: "16px" }}
             value={randomAnimation ? RANDOM_ID : animation?.id}
             onChange={(e) => {
@@ -253,7 +254,7 @@ const Controls: FC<Props> = ({
                 setRandomAnimation(true);
               } else {
                 const newAnimation = Animations.find(
-                  ({ id }) => id === e.target.value
+                  ({ id }) => id === e.target.value,
                 );
                 setAnimation(newAnimation);
                 setRandomAnimation(false);
@@ -265,13 +266,13 @@ const Controls: FC<Props> = ({
                 <option value={id} key={id}>
                   {name}
                 </option>
-              )
+              ),
             )}
-          </select>
+          </Dropdown>
         </div>
       </FlexDiv>
     </div>
   );
 };
 
-export default Controls;
+export default PlayerControls;

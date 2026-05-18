@@ -3,10 +3,12 @@ import ResizeIcon from "../icons/ResizeIcon";
 import { Clrs } from "../styled/consts";
 import { Analyser, Animation } from "../types/AnimationTypes";
 
-type Props = { player?: HTMLAudioElement | null; animation?: Animation };
+type Props = {
+  analyser?: Analyser;
+  animation?: Animation;
+};
 
-const Visualizer: FC<Props> = ({ player, animation }) => {
-  const [analyser, setAnalyser] = useState<Analyser>();
+const Visualizer: FC<Props> = ({ analyser, animation }) => {
   const [fullScreen, setFullScreen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvas = canvasRef.current;
@@ -29,17 +31,6 @@ const Visualizer: FC<Props> = ({ player, animation }) => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
-
-  useEffect(() => {
-    if (player) {
-      const audioCtx = new AudioContext();
-      const audioSource = audioCtx.createMediaElementSource(player);
-      const analyser = audioCtx.createAnalyser();
-      audioSource.connect(analyser);
-      analyser.connect(audioCtx.destination);
-      setAnalyser(analyser);
-    }
-  }, [player]);
 
   useEffect(() => {
     if (canvas && analyser && animation) {

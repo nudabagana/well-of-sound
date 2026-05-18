@@ -1,7 +1,7 @@
 import { Dispatch, FC, SetStateAction } from "react";
-import { Clrs } from "../styled/consts";
-import { AudioFile } from "../types/FileTypes";
-import stringUtils from "../utils/stringUtils";
+import { Clrs } from "../../styled/consts";
+import { AudioFile } from "../../types/FileTypes";
+import stringUtils from "../../utils/stringUtils";
 
 type Props = {
   audioFiles?: AudioFile[];

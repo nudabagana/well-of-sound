@@ -1,10 +1,9 @@
 import { CSSProperties } from "react";
 
-export type Analyser = {
-  getByteFrequencyData: (array: Uint8Array) => void;
-  fftSize: number;
-  frequencyBinCount: number;
-};
+export type Analyser = Pick<
+  AnalyserNode,
+  "getByteFrequencyData" | "fftSize" | "frequencyBinCount"
+>;
 
 export type AnimationProps = {
   ctx: CanvasRenderingContext2D;

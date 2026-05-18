@@ -1,10 +1,10 @@
-import { FC, useState, useEffect } from "react";
-import { Clrs } from "../styled/consts";
-import stringUtils from "../utils/stringUtils";
+import { FC } from "react";
+import { Clrs } from "../../styled/consts";
+import stringUtils from "../../utils/stringUtils";
 
 type Props = { songName?: string };
 
-const InfoBar: FC<Props> = ({ songName }) => {
+const PlayerInfoBar: FC<Props> = ({ songName }) => {
   return (
     <div
       style={{
@@ -26,4 +26,4 @@ const InfoBar: FC<Props> = ({ songName }) => {
   );
 };
 
-export default InfoBar;
+export default PlayerInfoBar;
