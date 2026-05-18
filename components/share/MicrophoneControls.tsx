@@ -21,7 +21,7 @@ const MicrophoneControls: FC<Props> = ({
   onCaptureMicrophone,
 }) => {
   return (
-    <FlexDiv style={{ alignItems: "center", gap: Space.md }}>
+    <FlexDiv $wrap style={{ alignItems: "center", gap: Space.md }}>
       <Dropdown
         style={{ width: "180px", fontSize: FontSizes.sm }}
         value={microphoneDeviceId}

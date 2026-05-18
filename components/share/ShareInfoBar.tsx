@@ -31,6 +31,7 @@ const ShareInfoBar: FC<Props> = ({
 }) => {
   return (
     <FlexDiv
+      $wrap
       style={{
         border: Borders.primary,
         marginBottom: Space.md,
@@ -52,7 +53,14 @@ const ShareInfoBar: FC<Props> = ({
           </option>
         ))}
       </Dropdown>
-      <FlexDiv style={{ alignItems: "center", gap: Space.md }}>
+      <FlexDiv
+        $wrap
+        style={{
+          alignItems: "center",
+          gap: Space.md,
+          justifyContent: "flex-end",
+        }}
+      >
         <MicrophoneControls
           isLoading={isLoading}
           microphoneDeviceId={microphoneDeviceId}
