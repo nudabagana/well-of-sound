@@ -1,16 +1,18 @@
 import { useCallback, useState } from "react";
 import { stopMediaStream } from "../media/mediaStreams";
 
-const useSharedAudioStream = () => {
+const useMicrophoneStream = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const start = useCallback(async () => {
+  const start = useCallback(async (deviceId?: string) => {
     setIsLoading(true);
 
     try {
-      const nextStream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
-        audio: true,
+      const nextStream = await navigator.mediaDevices.getUserMedia({
+        audio:
+          deviceId && deviceId !== "default"
+            ? { deviceId: { exact: deviceId } }
+            : true,
       });
 
       if (nextStream.getAudioTracks().length === 0) {
@@ -28,4 +30,4 @@ const useSharedAudioStream = () => {
   return { isLoading, start };
 };
 
-export default useSharedAudioStream;
+export default useMicrophoneStream;

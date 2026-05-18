@@ -6,21 +6,28 @@ import { FontSizes } from "../../styled/fontSizes";
 import Dropdown from "../../styled/inputs/Dropdown";
 import FlexDiv from "../../styled/FlexDiv";
 import { Space } from "../../styled/space";
+import MicrophoneControls from "./MicrophoneControls";
 
 type Props = {
-  isSharing: boolean;
   isLoading: boolean;
   animationId?: string;
+  microphoneDeviceId?: string;
+  microphoneDevices: { id: string; label: string }[];
   onAnimationChange(animationId: string): void;
-  onShare(): void;
+  onMicrophoneDeviceChange(deviceId: string): void;
+  onShareAudio(): void;
+  onCaptureMicrophone(): void;
 };
 
 const ShareInfoBar: FC<Props> = ({
-  isSharing,
   isLoading,
   animationId,
+  microphoneDeviceId,
+  microphoneDevices,
   onAnimationChange,
-  onShare,
+  onMicrophoneDeviceChange,
+  onShareAudio,
+  onCaptureMicrophone,
 }) => {
   return (
     <FlexDiv
@@ -30,7 +37,7 @@ const ShareInfoBar: FC<Props> = ({
         padding: Space.md,
         fontSize: FontSizes.sm,
         alignItems: "center",
-        justifyContent: "flex-end",
+        justifyContent: "space-between",
         gap: Space.md,
       }}
     >
@@ -45,15 +52,24 @@ const ShareInfoBar: FC<Props> = ({
           </option>
         ))}
       </Dropdown>
-      <Button
-        style={{
-          fontSize: FontSizes.sm,
-          padding: `${Space.sm} ${Space.md}`,
-        }}
-        onClick={onShare}
-      >
-        {isLoading ? "Connecting..." : isSharing ? "Share again" : "Share audio"}
-      </Button>
+      <FlexDiv style={{ alignItems: "center", gap: Space.md }}>
+        <MicrophoneControls
+          isLoading={isLoading}
+          microphoneDeviceId={microphoneDeviceId}
+          microphoneDevices={microphoneDevices}
+          onMicrophoneDeviceChange={onMicrophoneDeviceChange}
+          onCaptureMicrophone={onCaptureMicrophone}
+        />
+        <Button
+          style={{
+            fontSize: FontSizes.sm,
+            padding: `${Space.sm} ${Space.md}`,
+          }}
+          onClick={onShareAudio}
+        >
+          {isLoading ? "Connecting..." : "Share audio"}
+        </Button>
+      </FlexDiv>
     </FlexDiv>
   );
 };

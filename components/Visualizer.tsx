@@ -1,6 +1,7 @@
 import { FC, useEffect, useRef, useState } from "react";
 import ResizeIcon from "../icons/ResizeIcon";
 import { Borders } from "../styled/borders";
+import { FontSizes } from "../styled/fontSizes";
 import { Space } from "../styled/space";
 import { Analyser, Animation } from "../types/AnimationTypes";
 
@@ -59,19 +60,37 @@ const Visualizer: FC<Props> = ({ analyser, animation }) => {
       }}
       onDoubleClick={() => setFullScreen((f) => !f)}
     >
-      <canvas
-        ref={canvasRef}
-        style={{
-          width: "100%",
-          height: "100%",
-          background: "black",
-          left: 0,
-          top: 0,
-          zIndex: 10,
-          position: fullScreen ? "fixed" : "absolute",
-          ...animation?.canvasStyle,
-        }}
-      />
+      {analyser ? (
+        <canvas
+          ref={canvasRef}
+          style={{
+            width: "100%",
+            height: "100%",
+            background: "black",
+            left: 0,
+            top: 0,
+            zIndex: 10,
+            position: fullScreen ? "fixed" : "absolute",
+            ...animation?.canvasStyle,
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            position: fullScreen ? "fixed" : "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: FontSizes.lg,
+            fontWeight: 700,
+            letterSpacing: Space.xs,
+            zIndex: 10,
+          }}
+        >
+          [ no audio ]
+        </div>
+      )}
 
       <ResizeIcon
         active={fullScreen}

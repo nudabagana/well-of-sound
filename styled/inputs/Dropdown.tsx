@@ -11,6 +11,7 @@ const Dropdown = styled.select`
   background-color: ${(p) => p.theme.clr.Bg};
   color: ${(p) => p.theme.clr.text};
   cursor: pointer;
+  text-overflow: ellipsis;
 
   &:hover {
     border-color: ${(p) => p.theme.clr.primaryHover};
