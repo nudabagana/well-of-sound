@@ -1,7 +1,7 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { Animations } from "../animations/AnimationList";
 import Slider from "../components/Slider";
-import { Clrs } from "../styled/consts";
+import { Borders } from "../styled/borders";
 import FakeAnalyser from "../workshop/FakeAnalyser";
 
 const paramMin = 0;
@@ -43,7 +43,7 @@ const Workshop: FC = () => {
   return (
     <div
       style={{
-        border: `solid 3px ${Clrs.primary}`,
+        border: Borders.primary,
         height: "100%",
         position: "relative",
       }}

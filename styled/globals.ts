@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components";
+import { FontSizes } from "./fontSizes";
 
 /* @font-face {
   font-family: 'Main';
@@ -21,6 +22,6 @@ export const GlobalStyle = createGlobalStyle`
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
    color: ${(p) => p.theme.clr.text};
    margin: 0;
-   font-size: 18px;
+   font-size: ${FontSizes.md};
   }
 `;

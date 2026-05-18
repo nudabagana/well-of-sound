@@ -9,11 +9,13 @@ import {
 import { Animations } from "../../animations/AnimationList";
 import PlayPauseIcon from "../../icons/PlayPauseIcon";
 import ShuffleIcon from "../../icons/ShuffleIcon";
+import { Borders } from "../../styled/borders";
 import Button from "../../styled/buttons/Button";
 import { FileInputWrapper } from "../../styled/buttons/FileInputWrapper";
-import { Clrs } from "../../styled/consts";
 import FlexDiv from "../../styled/FlexDiv";
+import { FontSizes } from "../../styled/fontSizes";
 import Dropdown from "../../styled/inputs/Dropdown";
+import { Space } from "../../styled/space";
 import { Animation } from "../../types/AnimationTypes";
 import { AudioFile } from "../../types/FileTypes";
 import { randomInt } from "../../utils/mathUtls";
@@ -164,10 +166,10 @@ const PlayerControls: FC<Props> = ({
         flexDirection: "column",
         flexWrap: "wrap",
         alignItems: "start",
-        gap: "10px",
-        border: `solid 3px ${Clrs.primary}`,
-        padding: "10px",
-        marginBottom: "10px",
+        gap: Space.md,
+        border: Borders.primary,
+        padding: Space.md,
+        marginBottom: Space.md,
       }}
     >
       <div
@@ -193,8 +195,8 @@ const PlayerControls: FC<Props> = ({
         </FileInputWrapper>
         <Button
           style={{
-            fontSize: "18px",
-            padding: "5px",
+            fontSize: FontSizes.md,
+            padding: Space.sm,
           }}
           onClick={clearFiles}
         >
@@ -212,7 +214,7 @@ const PlayerControls: FC<Props> = ({
             min={0}
             max={duration}
             value={playTime}
-            style={{ width: "100%", margin: "10px" }}
+            style={{ width: "100%", margin: Space.md }}
             onChange={(e) => {
               if (player) {
                 player.currentTime = Number(e.target.value);
@@ -225,10 +227,10 @@ const PlayerControls: FC<Props> = ({
         </div>
       </div>
       <FlexDiv
-        style={{ justifyContent: "space-between", width: "100%", gap: "25px" }}
+        style={{ justifyContent: "space-between", width: "100%", gap: Space.xl }}
       >
         <div>
-          <p style={{ margin: "0px 0px 5px 0" }}>Volume - {volume}%</p>
+          <p style={{ margin: `0 0 ${Space.sm} 0` }}>Volume - {volume}%</p>
           <input
             type="range"
             min="0"
@@ -244,9 +246,9 @@ const PlayerControls: FC<Props> = ({
           <ShuffleIcon active={shuffle} />
         </div>
         <div>
-          <p style={{ margin: "0px 0px 5px 0" }}>Visualizer</p>
+          <p style={{ margin: `0 0 ${Space.sm} 0` }}>Visualizer</p>
           <Dropdown
-            style={{ width: "100px", fontSize: "16px" }}
+            style={{ width: "100px", fontSize: FontSizes.sm }}
             value={randomAnimation ? RANDOM_ID : animation?.id}
             onChange={(e) => {
               const val = e.target.value;

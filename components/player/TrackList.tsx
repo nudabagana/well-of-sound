@@ -1,5 +1,7 @@
 import { Dispatch, FC, SetStateAction } from "react";
+import { Borders } from "../../styled/borders";
 import { Clrs } from "../../styled/consts";
+import { Space } from "../../styled/space";
 import { AudioFile } from "../../types/FileTypes";
 import stringUtils from "../../utils/stringUtils";
 
@@ -16,7 +18,7 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
         flex: "1 0 0px",
         overflow: "auto",
         minHeight: "200px",
-        border: `solid 3px ${Clrs.primary}`,
+        border: Borders.primary,
       }}
     >
       {audioFiles?.map((fileObj, i) => {
@@ -27,7 +29,7 @@ const TrackList: FC<Props> = ({ audioFiles, currFile, setCurrFile }) => {
             onDoubleClick={() => setCurrFile(fileObj)}
             style={{
               backgroundColor: id === currFile?.id ? Clrs.primary : undefined,
-              padding: "2px 5px 2px 5px",
+              padding: `${Space.xs} ${Space.sm}`,
             }}
           >
             {i} - {stringUtils.trimExtension(name)}

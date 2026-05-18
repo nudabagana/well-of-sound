@@ -1,6 +1,7 @@
 import { FC, useEffect, useRef, useState } from "react";
 import ResizeIcon from "../icons/ResizeIcon";
-import { Clrs } from "../styled/consts";
+import { Borders } from "../styled/borders";
+import { Space } from "../styled/space";
 import { Analyser, Animation } from "../types/AnimationTypes";
 
 type Props = {
@@ -52,7 +53,7 @@ const Visualizer: FC<Props> = ({ analyser, animation }) => {
   return (
     <div
       style={{
-        border: `solid 3px ${Clrs.primary}`,
+        border: Borders.primary,
         height: "100%",
         position: "relative",
       }}
@@ -76,8 +77,8 @@ const Visualizer: FC<Props> = ({ analyser, animation }) => {
         active={fullScreen}
         onClick={() => setFullScreen((f) => !f)}
         style={{
-          right: "15px",
-          top: "15px",
+          right: Space.lg,
+          top: Space.lg,
           position: fullScreen ? "fixed" : "absolute",
           cursor: "pointer",
           zIndex: "11",

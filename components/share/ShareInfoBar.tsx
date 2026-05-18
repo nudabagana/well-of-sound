@@ -1,9 +1,11 @@
 import { FC } from "react";
 import { Animations } from "../../animations/AnimationList";
 import Button from "../../styled/buttons/Button";
-import { Clrs } from "../../styled/consts";
+import { Borders } from "../../styled/borders";
+import { FontSizes } from "../../styled/fontSizes";
 import Dropdown from "../../styled/inputs/Dropdown";
 import FlexDiv from "../../styled/FlexDiv";
+import { Space } from "../../styled/space";
 
 type Props = {
   isSharing: boolean;
@@ -23,17 +25,17 @@ const ShareInfoBar: FC<Props> = ({
   return (
     <FlexDiv
       style={{
-        border: `solid 3px ${Clrs.primary}`,
-        marginBottom: "10px",
-        padding: "10px",
-        fontSize: "16px",
+        border: Borders.primary,
+        marginBottom: Space.md,
+        padding: Space.md,
+        fontSize: FontSizes.sm,
         alignItems: "center",
         justifyContent: "flex-end",
-        gap: "10px",
+        gap: Space.md,
       }}
     >
       <Dropdown
-        style={{ width: "140px", fontSize: "16px" }}
+        style={{ width: "140px", fontSize: FontSizes.sm }}
         value={animationId}
         onChange={(e) => onAnimationChange(e.target.value)}
       >
@@ -45,8 +47,8 @@ const ShareInfoBar: FC<Props> = ({
       </Dropdown>
       <Button
         style={{
-          fontSize: "16px",
-          padding: "6px 10px",
+          fontSize: FontSizes.sm,
+          padding: `${Space.sm} ${Space.md}`,
         }}
         onClick={onShare}
       >

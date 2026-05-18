@@ -1,5 +1,7 @@
 import { FC } from "react";
-import { Clrs } from "../../styled/consts";
+import { Borders } from "../../styled/borders";
+import { FontSizes } from "../../styled/fontSizes";
+import { Space } from "../../styled/space";
 import stringUtils from "../../utils/stringUtils";
 
 type Props = { songName?: string };
@@ -8,11 +10,11 @@ const PlayerInfoBar: FC<Props> = ({ songName }) => {
   return (
     <div
       style={{
-        border: `solid 3px ${Clrs.primary}`,
-        marginBottom: "10px",
-        padding: "10px",
+        border: Borders.primary,
+        marginBottom: Space.md,
+        padding: Space.md,
         textAlign: "center",
-        fontSize: "16px",
+        fontSize: FontSizes.sm,
       }}
     >
       {!songName ? (
