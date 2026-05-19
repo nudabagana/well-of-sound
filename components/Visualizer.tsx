@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import ResizeIcon from "../icons/ResizeIcon";
 import { Borders } from "../styled/borders";
 import { FontSizes } from "../styled/fontSizes";
@@ -12,8 +12,10 @@ type Props = {
 
 const Visualizer: FC<Props> = ({ analyser, animation }) => {
   const [fullScreen, setFullScreen] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const canvas = canvasRef.current;
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const handleCanvasMount = useCallback((node: HTMLCanvasElement | null) => {
+    setCanvas(node);
+  }, []);
 
   useEffect(() => {
     if (fullScreen) {
@@ -62,7 +64,8 @@ const Visualizer: FC<Props> = ({ analyser, animation }) => {
     >
       {analyser ? (
         <canvas
-          ref={canvasRef}
+          key={animation?.id}
+          ref={handleCanvasMount}
           style={{
             width: "100%",
             height: "100%",

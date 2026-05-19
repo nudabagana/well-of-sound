@@ -1,19 +1,13 @@
 import { CSSProperties } from "react";
 import { GetFuncType } from "../types/AnimationTypes";
 import clrUtils from "../utils/clrUtils";
-import AnimationBase from "./AnimationBase";
+import AnimationBase, {
+  FULL_HUE_ROTATION,
+  resizeCanvas,
+} from "./AnimationBase";
 
 const FFT_SIZE = 1024;
-
-const resizeCanvas = (canvas: HTMLCanvasElement) => {
-  const dpr = window.devicePixelRatio || 1;
-  const width = Math.max(1, Math.floor(canvas.clientWidth * dpr));
-  const height = Math.max(1, Math.floor(canvas.clientHeight * dpr));
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width;
-    canvas.height = height;
-  }
-};
+const MAX_RENDERED_BIN_RATIO = 0.7;
 
 const avgRange = (dataArr: Uint8Array, from: number, to: number) => {
   let sum = 0;
@@ -25,30 +19,32 @@ const avgRange = (dataArr: Uint8Array, from: number, to: number) => {
 };
 
 const getAnimateFunc: GetFuncType = ({ ctx, analyser, canvas }) => {
-  const { setId, stop, bufferLength, dataArr, startMs } = AnimationBase.getBase(
+  const { requestNextFrame, stop, binCount, readFrequencyData, startMs } =
+    AnimationBase.getBase(
     analyser,
-    FFT_SIZE
+    FFT_SIZE,
+    MAX_RENDERED_BIN_RATIO
   );
 
   const start = () => {
     resizeCanvas(canvas);
-    analyser.getByteFrequencyData(dataArr);
+    const frequencyData = readFrequencyData();
 
     const w = canvas.width;
     const h = canvas.height;
     const cx = w / 2;
     const cy = h / 2;
     const t = (Date.now() - startMs) / 1000;
-    const bass = avgRange(dataArr, 0, Math.floor(bufferLength * 0.08));
+    const bass = avgRange(frequencyData, 0, Math.floor(binCount * 0.08));
     const mids = avgRange(
-      dataArr,
-      Math.floor(bufferLength * 0.08),
-      Math.floor(bufferLength * 0.35)
+      frequencyData,
+      Math.floor(binCount * 0.08),
+      Math.floor(binCount * 0.35)
     );
     const highs = avgRange(
-      dataArr,
-      Math.floor(bufferLength * 0.35),
-      bufferLength
+      frequencyData,
+      Math.floor(binCount * 0.35),
+      binCount
     );
 
     const zoom = 1.006 + bass * 0.03;
@@ -68,7 +64,7 @@ const getAnimateFunc: GetFuncType = ({ ctx, analyser, canvas }) => {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, w, h);
 
-    const hue = (t * 35 + bass * 120) % 360;
+    const hue = (t * 35 + bass * 120) % FULL_HUE_ROTATION;
     const radius = Math.min(w, h) * (0.15 + bass * 0.22);
     const spokes = 160;
 
@@ -80,8 +76,8 @@ const getAnimateFunc: GetFuncType = ({ ctx, analyser, canvas }) => {
     for (let layer = 0; layer < 3; layer++) {
       ctx.beginPath();
       for (let i = 0; i <= spokes; i++) {
-        const bin = Math.floor((i / spokes) * (bufferLength - 1));
-        const level = dataArr[bin] / 255;
+        const bin = Math.floor((i / spokes) * (binCount - 1));
+        const level = frequencyData[bin] / 255;
         const a = (i / spokes) * Math.PI * 2 + t * (0.12 + layer * 0.05);
         const wobble =
           Math.sin(a * (3 + layer) + t * (1.5 + layer)) *
@@ -108,8 +104,8 @@ const getAnimateFunc: GetFuncType = ({ ctx, analyser, canvas }) => {
 
     const pulseCount = 18;
     for (let i = 0; i < pulseCount; i++) {
-      const bin = Math.floor((i / pulseCount) * bufferLength);
-      const level = dataArr[bin] / 255;
+      const bin = Math.floor((i / pulseCount) * binCount);
+      const level = frequencyData[bin] / 255;
       const a = (i / pulseCount) * Math.PI * 2 + t * 0.4;
       const r = Math.min(w, h) * (0.32 + level * 0.28);
       ctx.beginPath();
@@ -131,7 +127,7 @@ const getAnimateFunc: GetFuncType = ({ ctx, analyser, canvas }) => {
     ctx.fillRect(0, 0, w, h);
     ctx.globalCompositeOperation = "source-over";
 
-    setId(requestAnimationFrame(start));
+    requestNextFrame(start);
   };
 
   return { start, stop };
