@@ -1,4 +1,5 @@
 import { FC } from "react";
+import styled from "styled-components";
 import { Animations } from "../../animations/AnimationList";
 import Button from "../../styled/buttons/Button";
 import { Borders } from "../../styled/borders";
@@ -6,6 +7,7 @@ import { FontSizes } from "../../styled/fontSizes";
 import Dropdown from "../../styled/inputs/Dropdown";
 import FlexDiv from "../../styled/FlexDiv";
 import { Space } from "../../styled/space";
+import { untilDesktop } from "../../styled/utils";
 import MicrophoneControls from "./MicrophoneControls";
 
 type Props = {
@@ -19,6 +21,33 @@ type Props = {
   onCaptureMicrophone(): void;
 };
 
+const ShareInfoBarContainer = styled(FlexDiv)`
+  & > select {
+    width: 180px;
+  }
+
+  ${untilDesktop(`
+    flex-direction: column;
+    align-items: stretch;
+
+    & > select {
+      width: 100%;
+    }
+  `)}
+`;
+
+const ShareInfoBarControls = styled(FlexDiv)`
+  ${untilDesktop(`
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+
+    & > button {
+      width: 100%;
+    }
+  `)}
+`;
+
 const ShareInfoBar: FC<Props> = ({
   isLoading,
   animationId,
@@ -30,7 +59,7 @@ const ShareInfoBar: FC<Props> = ({
   onCaptureMicrophone,
 }) => {
   return (
-    <FlexDiv
+    <ShareInfoBarContainer
       $wrap
       style={{
         border: Borders.primary,
@@ -43,7 +72,7 @@ const ShareInfoBar: FC<Props> = ({
       }}
     >
       <Dropdown
-        style={{ width: "140px", fontSize: FontSizes.sm }}
+        style={{ fontSize: FontSizes.sm }}
         value={animationId}
         onChange={(e) => onAnimationChange(e.target.value)}
       >
@@ -53,7 +82,7 @@ const ShareInfoBar: FC<Props> = ({
           </option>
         ))}
       </Dropdown>
-      <FlexDiv
+      <ShareInfoBarControls
         $wrap
         style={{
           alignItems: "center",
@@ -77,8 +106,8 @@ const ShareInfoBar: FC<Props> = ({
         >
           {isLoading ? "Connecting..." : "Share audio"}
         </Button>
-      </FlexDiv>
-    </FlexDiv>
+      </ShareInfoBarControls>
+    </ShareInfoBarContainer>
   );
 };
 

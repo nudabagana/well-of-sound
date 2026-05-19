@@ -7,7 +7,6 @@ const Dropdown = styled.select`
   border: solid 3px ${(p) => p.theme.clr.primary};
   font-size: ${FontSizes.sm};
   padding: ${Space.sm};
-  margin-right: ${Space.sm};
   background-color: ${(p) => p.theme.clr.Bg};
   color: ${(p) => p.theme.clr.text};
   cursor: pointer;
